@@ -1,5 +1,5 @@
 use crate::image::resize::{ResizeCommand, ResizeError};
-use clap::{Subcommand};
+use clap::Subcommand;
 
 #[derive(Subcommand)]
 pub enum ImageCommand {

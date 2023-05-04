@@ -3,7 +3,6 @@ use image;
 
 use std::io::Error;
 
-
 #[derive(Args)]
 pub struct ResizeCommand {
     #[clap(short, long)]
