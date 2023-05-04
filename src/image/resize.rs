@@ -1,8 +1,8 @@
 use clap::Args;
 use image;
-use std::fs;
+
 use std::io::Error;
-use std::path::Path;
+
 
 #[derive(Args)]
 pub struct ResizeCommand {
