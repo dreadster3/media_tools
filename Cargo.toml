@@ -10,3 +10,4 @@ description = "A simple tool to manipulate media files"
 [dependencies]
 clap = { version = "4.2.7", features = ["derive"] }
 image = "0.24.6"
+imageproc = "0.23.0"
