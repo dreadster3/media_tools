@@ -2,42 +2,41 @@ name: Build Executables
 
 on:
   push:
-    branches: [main, feature/ci_cd]
+    branches:
+      - main
+      - feature/ci_cd
+    tags:
+      - "v*.*.*"
   pull_request:
-    branches: [main]
+    braches:
+      - main
   workflow_dispatch:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-latest]
-        rust-version: [stable]
-
+        target:
+          [
+            x86_64-unknown-linux-gnu,
+            x86_64-apple-darwin,
+            x86_64-pc-windows-msvc,
+          ]
     steps:
-      - name: Set up Rust
-        uses: actions/setup-rust@v1
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
         with:
-          rust-version: ${{ matrix.rust-version }}
-          profile: minimal
-      - name: Install dependencies
-        run: |
-          if [ "${{ matrix.os }}" = "ubuntu-latest" ]; then
-            sudo apt-get update && sudo apt-get install -y gcc-multilib
-          fi
-      - name: Build executables
-        run: |
-          cargo build --release --target ${{ matrix.os }}${{ matrix.arch }}
-          mv target/${{ matrix.os }}${{ matrix.arch }}/release/<executable_name> <executable_name>-${{ matrix.os }}${{ matrix.arch }}-${{ github.sha }}
-        env:
-          EXECUTABLE_NAME: media-toolbox
-          ARCH: x86_64-
-
-      - name: Upload executables
+          toolchain: stable
+          override: true
+      - name: Build Executables
+        run: cargo build --release --target ${{ matrix.target }}
+      - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
           name: Executables
           path: |
-            <executable_name>-windows-latest-x86_64-${{ github.sha }}
-            <executable_name>-ubuntu-latest-x86_64-${{ github.sha }}
+            target/${{ matrix.target }}/release/media_tools*
+          if-no-files-found: error
