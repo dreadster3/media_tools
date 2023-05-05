@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - feature/ci_cd
     tags:
       - "v*.*.*"
   pull_request:
