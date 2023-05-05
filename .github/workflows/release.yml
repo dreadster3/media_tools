@@ -52,7 +52,7 @@ jobs:
       - name: Move Executables
         run: |
           mkdir artifact
-          mv target/${{ env.TARGET }}/release/media_tools.exe artifact/media_tools || \
+          mv target/${{ env.TARGET }}/release/media_tools artifact/media_tools || \
           mv target/${{ env.TARGET }}/release/media_tools.exe artifact/media_tools.exe
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
