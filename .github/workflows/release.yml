@@ -52,7 +52,7 @@ jobs:
       - name: Move Executables
         run: |
           mkdir artifact
-          if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+          if [ "${{ matrix.os }}" == "windows-latest" ]; then
             mv target/${{ env.TARGET }}/release/media_tools.exe artifact/media_tools.exe
           else
             mv target/${{ env.TARGET }}/release/media_tools artifact/media_tools
