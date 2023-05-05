@@ -1,3 +1,3 @@
-# Media Tools
+# :camera: Media Tools
 
-Cli tool developed in rust to perform image and video operations in an easy way.
+:computer: Cli tool developed in rust to perform image and video operations in an easy way.
