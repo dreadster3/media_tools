@@ -4,12 +4,8 @@ on:
   push:
     branches:
       - main
-      - fix/deployments_2
     tags:
       - "v*.*.*"
-  pull_request:
-    braches:
-      - main
   workflow_dispatch:
 
 jobs:
