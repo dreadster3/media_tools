@@ -52,14 +52,13 @@ jobs:
       - name: Move Executables
         run: |
           if [[ ${{ inputs.os }} == "windows-latest" ]]; then
-            mv target/${{ env.TARGET }}/release/media_tools.exe media_tools_4{{ matrix.os }}_${{ env.TARGET }}.exe
+            mv target/${{ env.TARGET }}/release/media_tools.exe media_tools_{{ matrix.os }}_${{ env.TARGET }}.exe
           else
             mv target/${{ env.TARGET }}/release/media_tools media_tools_${{ matrix.os }}_${{ env.TARGET }}
           fi
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: executables-${{ matrix.os }}
           path: |
             media_tools_${{ matrix.os }}_${{ env.TARGET }}*
           if-no-files-found: error
