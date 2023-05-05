@@ -5,9 +5,11 @@ use crate::image::resize::{ResizeCommand, ResizeError};
 
 #[derive(Subcommand)]
 pub enum ImageCommand {
+    /// Resize mode
     #[clap(name = "resize")]
     Resize(ResizeCommand),
 
+    /// Convert mode
     #[clap(name = "convert")]
     Convert(ConvertCommand),
 }
