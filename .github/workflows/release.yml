@@ -2,9 +2,10 @@ name: Build Executables
 
 on:
   push:
-    branches: [main]
+    branches: [main, feature/ci_cd]
   pull_request:
     branches: [main]
+  workflow_dispatch:
 
 jobs:
   build:
