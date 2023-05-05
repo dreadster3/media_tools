@@ -6,9 +6,6 @@ on:
       - main
     tags:
       - "v*.*.*"
-  pull_request:
-    braches:
-      - main
   workflow_dispatch:
 
 jobs:
@@ -36,6 +33,8 @@ jobs:
             target: x86_64-unknown-linux-gnu
           - os: windows-latest
             target: x86_64-apple-darwin
+    env:
+      TARGET: ${{ matrix.target }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -45,11 +44,21 @@ jobs:
           toolchain: stable
           override: true
       - name: Build Executables
-        run: cargo build --release --target ${{ matrix.target }}
+        run: cargo build --release --target ${{ env.TARGET }}
+      - name: Move Executables
+        if: runner.os == 'Windows'
+        run: |
+          mkdir artifact
+          mv target/${{ env.TARGET }}/release/media_tools.exe artifact/media_tools.exe
+      - name: Move Executables
+        if: runner.os != 'Windows'
+        run: |
+          mkdir artifact
+          mv target/${{ env.TARGET }}/release/media_tools artifact/media_tools
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: executables-${{ matrix.os }}
+          name: media_tools_${{ matrix.os }}_${{ env.TARGET }}
           path: |
-            target/${{ matrix.target }}/release
+            artifact/*
           if-no-files-found: error
