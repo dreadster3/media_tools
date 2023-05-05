@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - fix/deployments_2
     tags:
       - "v*.*.*"
   pull_request:
@@ -36,6 +37,8 @@ jobs:
             target: x86_64-unknown-linux-gnu
           - os: windows-latest
             target: x86_64-apple-darwin
+    env:
+      TARGET: ${{ matrix.target }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -45,11 +48,18 @@ jobs:
           toolchain: stable
           override: true
       - name: Build Executables
-        run: cargo build --release --target ${{ matrix.target }}
+        run: cargo build --release --target ${{ env.TARGET }}
+      - name: Move Executables
+        run: |
+          if [[ ${{ inputs.os }} == "windows-latest" ]]; then
+            mv target/${{ env.TARGET }}/release/media_tools.exe media_tools_4{{ matrix.os }}_${{ env.TARGET }}.exe
+          else
+            mv target/${{ env.TARGET }}/release/media_tools media_tools_${{ matrix.os }}_${{ env.TARGET }}
+          fi
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
           name: executables-${{ matrix.os }}
           path: |
-            target/${{ matrix.target }}/release
+            media_tools_${{ matrix.os }}_${{ env.TARGET }}*
           if-no-files-found: error
