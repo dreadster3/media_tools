@@ -1,0 +1,42 @@
+name: Build Executables
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+        rust-version: [stable]
+
+    steps:
+      - name: Set up Rust
+        uses: actions/setup-rust@v1
+        with:
+          rust-version: ${{ matrix.rust-version }}
+          profile: minimal
+      - name: Install dependencies
+        run: |
+          if [ "${{ matrix.os }}" = "ubuntu-latest" ]; then
+            sudo apt-get update && sudo apt-get install -y gcc-multilib
+          fi
+      - name: Build executables
+        run: |
+          cargo build --release --target ${{ matrix.os }}${{ matrix.arch }}
+          mv target/${{ matrix.os }}${{ matrix.arch }}/release/<executable_name> <executable_name>-${{ matrix.os }}${{ matrix.arch }}-${{ github.sha }}
+        env:
+          EXECUTABLE_NAME: media-toolbox
+          ARCH: x86_64-
+
+      - name: Upload executables
+        uses: actions/upload-artifact@v2
+        with:
+          name: Executables
+          path: |
+            <executable_name>-windows-latest-x86_64-${{ github.sha }}
+            <executable_name>-ubuntu-latest-x86_64-${{ github.sha }}
