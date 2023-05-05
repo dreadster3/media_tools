@@ -1,8 +1,13 @@
+use std::io::Error;
+
 use clap::Args;
 use image;
 
+<<<<<<< HEAD
 use std::io::Error;
-
+=======
+use crate::internal::utils;
+>>>>>>> 133a7d9 (Add convert functionality)
 
 #[derive(Args)]
 pub struct ResizeCommand {
@@ -27,9 +32,8 @@ pub enum ResizeError {
 
 impl ResizeCommand {
     pub fn execute(&self, input: &str) -> Result<(), ResizeError> {
-        let current_dir = std::env::current_dir().map_err(|e| ResizeError::IOError(e))?;
-        let input_path = current_dir.join(input);
-        let output_path = current_dir.join(&self.output);
+        let input_path = utils::to_absolute_path(input);
+        let output_path = utils::to_absolute_path(&self.output);
 
         let img = image::open(input_path).map_err(|e| ResizeError::ImageCrateError(e))?;
 
