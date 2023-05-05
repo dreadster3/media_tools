@@ -1,7 +1,8 @@
 use clap::Subcommand;
 
-use crate::image::convert::{ConvertCommand, ConvertError};
-use crate::image::resize::{ResizeCommand, ResizeError};
+use super::convert::{ConvertCommand, ConvertError};
+use super::resize::{ResizeCommand, ResizeError};
+use super::rotate::{RotateCommand, RotateError};
 
 #[derive(Subcommand)]
 pub enum ImageCommand {
@@ -12,13 +13,19 @@ pub enum ImageCommand {
     /// Convert mode
     #[clap(name = "convert")]
     Convert(ConvertCommand),
+
+    /// Rotate mode
+    #[clap(name = "rotate")]
+    Rotate(RotateCommand),
 }
 
 #[derive(Debug)]
 pub enum ImageError {
     ResizeError(ResizeError),
     ConvertError(ConvertError),
+    RotateError(RotateError),
     NoInputError,
+    NotImplementedError,
 }
 
 impl ImageCommand {
@@ -32,6 +39,10 @@ impl ImageCommand {
                 ImageCommand::Convert(convert) => convert
                     .execute(&input)
                     .map_err(|e| ImageError::ConvertError(e)),
+
+                ImageCommand::Rotate(rotate) => rotate
+                    .execute(&input)
+                    .map_err(|e| ImageError::RotateError(e)),
             },
             None => Err(ImageError::NoInputError),
         }
