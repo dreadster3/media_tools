@@ -3,11 +3,7 @@ use std::io::Error;
 use clap::Args;
 use image;
 
-<<<<<<< HEAD
-use std::io::Error;
-=======
 use crate::internal::utils;
->>>>>>> 133a7d9 (Add convert functionality)
 
 #[derive(Args)]
 pub struct ResizeCommand {
