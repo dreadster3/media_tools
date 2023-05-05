@@ -50,10 +50,15 @@ jobs:
       - name: Build Executables
         run: cargo build --release --target ${{ env.TARGET }}
       - name: Move Executables
+        if: ${{ matrix.os == "windows-latest" }}
         run: |
           mkdir artifact
-          mv target/${{ env.TARGET }}/release/media_tools artifact/media_tools || \
           mv target/${{ env.TARGET }}/release/media_tools.exe artifact/media_tools.exe
+      - name: Move Executables
+        if: ${{ matrix.os != "windows-latest" }}
+        run: |
+          mkdir artifact
+          mv target/${{ env.TARGET }}/release/media_tools artifact/media_tools
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
