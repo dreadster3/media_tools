@@ -3,7 +3,9 @@ use clap::{Parser, Subcommand};
 use crate::image::cli::{ImageCommand, ImageError};
 
 #[derive(Parser)]
+#[command(about, author, version)]
 pub struct Cli {
+    /// Mode to operate as
     #[clap(subcommand)]
     mode: EMode,
 
@@ -13,6 +15,7 @@ pub struct Cli {
 
 #[derive(Subcommand)]
 pub enum EMode {
+    /// Image operations
     #[clap(subcommand, name = "image")]
     Image(ImageCommand),
 }
