@@ -12,9 +12,11 @@ pub struct RotateCommand {
     #[clap(short, long)]
     angle: f32,
 
+    /// Whether to perserve the size of the original image
     #[clap(short, long)]
     perserve_size: bool,
 
+    /// Color to fill the image with
     #[clap(short, long)]
     fill_color: Option<String>,
 
