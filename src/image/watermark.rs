@@ -1,20 +1,24 @@
 use clap::{Args, ValueEnum};
-use image::{GenericImageView};
+use image::GenericImageView;
 
 use super::utils as image_utils;
 use crate::internal::utils;
 
 #[derive(Args)]
 pub struct WatermarkCommand {
+    /// Path to picture to use as overlay
     #[clap(short, long)]
     watermark: String,
 
+    /// Position to place the overlay
     #[clap(short, long, default_value = "center")]
     position: WatermarkPosition,
 
+    /// Opacity of the overlay
     #[clap(short('O'), long, default_value = "1.0")]
     opacity: f32,
 
+    /// Path to output file
     #[clap(short, long)]
     output: String,
 }

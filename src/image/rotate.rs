@@ -15,7 +15,7 @@ pub struct RotateCommand {
     #[clap(short, long)]
     perserve_size: bool,
 
-    /// Color to fill the image with
+    /// Color to fill the image with after rotation. Format: (r, g, b, a)
     #[clap(short, long)]
     fill_color: Option<String>,
 
