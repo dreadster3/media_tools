@@ -4,5 +4,6 @@ pub mod cli;
 pub mod convert;
 pub mod resize;
 pub mod rotate;
+pub mod watermark;
 
 mod utils;
