@@ -26,7 +26,6 @@ pub struct RotateCommand {
 
 #[derive(Debug)]
 pub enum RotateError {
-    IOError(std::io::Error),
     ImageCrateError(image::ImageError),
     ParseError,
 }
