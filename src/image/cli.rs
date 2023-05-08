@@ -3,6 +3,7 @@ use clap::Subcommand;
 use super::convert::{ConvertCommand, ConvertError};
 use super::resize::{ResizeCommand, ResizeError};
 use super::rotate::{RotateCommand, RotateError};
+use super::watermark::{WatermarkCommand, WatermarkError};
 
 #[derive(Subcommand)]
 pub enum ImageCommand {
@@ -17,6 +18,10 @@ pub enum ImageCommand {
     /// Rotate mode
     #[clap(name = "rotate")]
     Rotate(RotateCommand),
+
+    /// Watermark mode
+    #[clap(name = "watermark")]
+    Watermark(WatermarkCommand),
 }
 
 #[derive(Debug)]
@@ -24,6 +29,7 @@ pub enum ImageError {
     ResizeError(ResizeError),
     ConvertError(ConvertError),
     RotateError(RotateError),
+    WatermarkError(WatermarkError),
     NoInputError,
     NotImplementedError,
 }
@@ -43,6 +49,10 @@ impl ImageCommand {
                 ImageCommand::Rotate(rotate) => rotate
                     .execute(&input)
                     .map_err(|e| ImageError::RotateError(e)),
+
+                ImageCommand::Watermark(watermark) => watermark
+                    .execute(&input)
+                    .map_err(|e| ImageError::WatermarkError(e)),
             },
             None => Err(ImageError::NoInputError),
         }

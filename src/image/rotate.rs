@@ -1,6 +1,5 @@
 use clap::Args;
-use image::imageops::ColorMap;
-use image::{ColorType, DynamicImage, ImageBuffer, Rgba};
+use image::{ImageBuffer, Rgba};
 use imageproc::geometric_transformations;
 
 use crate::image::utils as image_utils;
@@ -77,7 +76,7 @@ impl RotateCommand {
 
         let fill_color = match &self.fill_color {
             Some(color) => {
-                image_utils::from_str_to_rgba(&color).map_err(|e| RotateError::ParseError)?
+                image_utils::from_str_to_rgba(&color).map_err(|_e| RotateError::ParseError)?
             }
             None => Rgba::from([0u8, 0u8, 0u8, 0u8]),
         };

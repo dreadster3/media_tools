@@ -6,7 +6,8 @@ where
 {
     let height = img.height() as f32;
     let width = img.width() as f32;
-    (width / 2f32, height / 2f32)
+
+    return (width / 2f32, height / 2f32);
 }
 
 pub fn from_str_to_rgba(rgba_string: &str) -> Result<image::Rgba<u8>, std::num::ParseIntError> {
@@ -23,7 +24,25 @@ pub fn from_str_to_rgba(rgba_string: &str) -> Result<image::Rgba<u8>, std::num::
         rgba_values.get(3).unwrap_or(&255).clone(),
     ]);
 
-    println!("{:?}", color);
+    return Ok(color);
+}
 
-    Ok(color)
+pub fn blend_with_opacity(
+    below_color: image::Rgba<u8>,
+    overlay_color: image::Rgba<u8>,
+    opacity: f32,
+) -> image::Rgba<u8> {
+    // ( (1-p)R1 + p*R2, (1-p)*G1 + p*G2, (1-p)*B1 + p*B2 )
+    let below_color = below_color.channels();
+    let overlay_color = overlay_color.channels();
+
+    let alpha_below = overlay_color[3] as f32 / 255f32;
+
+    let opacity = opacity.clamp(0f32, 1f32) * alpha_below;
+
+    let r = ((1f32 - opacity) * below_color[0] as f32 + opacity * overlay_color[0] as f32) as u8;
+    let g = ((1f32 - opacity) * below_color[1] as f32 + opacity * overlay_color[1] as f32) as u8;
+    let b = ((1f32 - opacity) * below_color[2] as f32 + opacity * overlay_color[2] as f32) as u8;
+
+    return image::Rgba([r, g, b, below_color[3]]);
 }
