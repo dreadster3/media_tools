@@ -1,5 +1,3 @@
-use std::io::Error;
-
 use clap::Args;
 use image;
 
@@ -34,7 +32,6 @@ pub struct ResizeCommand {
 
 #[derive(Debug)]
 pub enum ResizeError {
-    IOError(Error),
     ImageCrateError(image::ImageError),
 }
 
