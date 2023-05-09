@@ -1,9 +1,6 @@
 name: Build Linux Binaries
 
 on:
-  push:
-    branches:
-      - feature/linux_app_image
   workflow_dispatch:
 
 env:
