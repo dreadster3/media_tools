@@ -30,6 +30,7 @@ jobs:
           chmod a+x appimagetool-x86_64.AppImage
           mv appimagetool-x86_64.AppImage appimagetool
           export PATH=$PATH:$(pwd)
+          echo "$(pwd)" >> $GITHUB_PATH
       - name: Test AppImage Tool Presence
         run: |
           appimagetool --help
