@@ -10,7 +10,7 @@ on:
 
 env:
   ARCH: x86_64
-  TARGET: ${{ env.ARCH }}-unknown-linux-gnu
+  TARGET: x86_64-unknown-linux-gnu
 
 jobs:
   build-and-release:
