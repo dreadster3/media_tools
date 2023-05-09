@@ -1,11 +1,6 @@
-name: Build Linux
+name: Build Linux Binaries
 
 on:
-  push:
-    tags:
-      - "v*.*.*"
-    branches:
-      - feature/linux_app_image
   workflow_dispatch:
 
 env:
@@ -18,10 +13,15 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
+      - name: Get version from Cargo.toml
+        run: echo ::set-env name=VERSION::$(grep '^version' Cargo.toml | awk -F'"' '{print $2}')
+
       - name: Install Dependencies
         run: |
           sudo apt-get update
           sudo apt-get install libfuse2
+
       - name: Install AppImage Tool
         run: |
           mkdir bin
@@ -29,31 +29,30 @@ jobs:
           wget "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage"
           chmod a+x appimagetool-x86_64.AppImage
           mv appimagetool-x86_64.AppImage appimagetool
-          export PATH=$PATH:$(pwd)
           echo "$(pwd)" >> $GITHUB_PATH
-      - name: Test AppImage Tool Presence
-        run: |
-          appimagetool --help
+
       - name: Setup Rust
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
           override: true
+
       - name: Install Cargo AppImage
         run: cargo install cargo-appimage
 
       - name: Build
-        run: cargo appimage --target=${{ env.TARGET }}
+        run: |
+          cargo appimage --target=${{ env.TARGET }}
+          mv target/${{env.TARGET}}/release/media_tools target/${{env.TARGET}}/release/media_tools_linux_${{env.VERSION}}
 
       - name: Upload AppImage
         uses: actions/upload-artifact@v2
         with:
-          path: media_tools*.AppImage
+          path: media_tools-${{env.VERSION}}-${{env.ARCH}}.AppImage
           if-no-files-found: error
 
       - name: Upload Executable
         uses: actions/upload-artifact@v2
         with:
-          name: media_tools_linux
-          path: target/${{env.TARGET}}/release/media_tools
+          path: target/${{env.TARGET}}/release/media_tools_linux_${{env.VERSION}}
           if-no-files-found: error
