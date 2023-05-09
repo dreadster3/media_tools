@@ -2,7 +2,7 @@
 name = "media_tools"
 version = "0.1.0-beta5"
 edition = "2021"
-author="Nuno Antunes"
+authors = ["Nuno Antunes"]
 description = "A simple tool to manipulate media files"
 
 # Needed to create AppImage

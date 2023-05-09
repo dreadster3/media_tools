@@ -1,0 +1,105 @@
+name: Build and Release Binaries
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+
+env:
+  ARCH: x86_64
+
+jobs:
+  linux-build-and-release:
+    runs-on: ubuntu-latest
+    env:
+      TARGET: x86_64-unknown-linux-gnu
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Get version from Cargo.toml
+        run: echo "VERSION=$(grep '^version' Cargo.toml | awk -F'"' '{print $2}')" >> $GITHUB_ENV
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install libfuse2
+
+      - name: Install AppImage Tool
+        run: |
+          mkdir bin
+          cd bin
+          wget "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage"
+          chmod a+x appimagetool-x86_64.AppImage
+          mv appimagetool-x86_64.AppImage appimagetool
+          echo "$(pwd)" >> $GITHUB_PATH
+
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - name: Install Cargo AppImage
+        run: cargo install cargo-appimage
+
+      - name: Install Cargo Deb
+        run: cargo install cargo-deb
+
+      - name: Create Artifact Directory
+        run: mkdir artifact
+
+      - name: Build AppImage
+        run: |
+          cargo appimage --target=${{ env.TARGET }}
+          mv target/${{env.TARGET}}/release/media_tools artifact/media_tools_linux_${{env.VERSION}}
+          mv media_tools-${{env.VERSION}}-${{env.ARCH}}.AppImage artifact/
+
+      - name: Build Debian Package
+        run: |
+          cargo deb --target ${{ env.TARGET }}
+          mv target/${{env.TARGET}}/debian/media*.deb artifact/
+
+      - name: Upload Linux Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          path: artifact/
+          if-no-files-found: error
+  macos-build-and-release:
+    runs-on: macos-latest
+    env:
+      TARGET: x86_64-apple-darwin
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Get version from Cargo.toml
+        run: echo "VERSION=$(grep '^version' Cargo.toml | awk -F'"' '{print $2}')" >> $GITHUB_ENV
+
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - name: Build Source
+        run: cargo build --release --target ${{ env.TARGET }}
+
+      - name: Package
+        run: |
+          mkdir -p MediaToolsInstaller/usr/local/bin
+          cp target/${{env.TARGET}}/release/media_tools MediaToolsInstaller/usr/local/bin
+          pkgbuild --identifier com.dreadster.mediatools --root MediaToolsInstaller --version ${{env.VERSION}} media_tools-${{env.VERSION}}-${{env.ARCH}}.pkg
+
+      - name: Artifact Folder
+        run: |
+          mkdir artifact
+          mv media_tools-${{env.VERSION}}-${{env.ARCH}}.pkg artifact
+          mv target/${{env.TARGET}}/release/media_tools artifact/media_tools_macos_${{env.VERSION}}
+
+      - name: Upload MacOs Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          path: artifact/
+          if-no-files-found: error
