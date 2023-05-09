@@ -8,12 +8,13 @@ on:
       - feature/linux_app_image
   workflow_dispatch:
 
+env:
+  ARCH: x86_64
+  TARGET: ${{ env.ARCH }}-unknown-linux-gnu
+
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
-    env:
-      ARCH: x86_64
-      TARGET: ${{ env.ARCH }}-unknown-linux-gnu
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
