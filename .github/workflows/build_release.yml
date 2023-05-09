@@ -120,7 +120,7 @@ jobs:
           echo $version >> $GITHUB_ENV
 
       - name: Install Innosetup
-        run: wget https://jrsoftware.org/download.php/is.exe
+        run: Invoke-WebRequest https://jrsoftware.org/download.php/is.exe
 
       - name: Setup Rust
         uses: actions-rs/toolchain@v1
