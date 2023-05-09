@@ -534,7 +534,7 @@ dependencies = [
 
 [[package]]
 name = "media_tools"
-version = "0.1.0"
+version = "0.1.0-beta5"
 dependencies = [
  "clap",
  "image",
