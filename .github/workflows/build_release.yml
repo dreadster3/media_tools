@@ -133,7 +133,7 @@ jobs:
 
       - name: Setup Innosetup Script
         run: |
-          echo << EOF > script.iss
+          (
           [Setup]
           AppName=Media Tools
           AppVersion=${{env.VERSION}}
@@ -142,7 +142,7 @@ jobs:
 
           [Files]
           Source: "target/${{env.TARGET}}/release/media_tools.exe"; DestDir: "{app}"
-          EOF
+          ) > script.iss
 
       - name: Generate Installer
         run: |
