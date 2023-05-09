@@ -90,12 +90,12 @@ jobs:
         run: |
           mkdir -p MediaToolsInstaller/usr/local/bin
           cp target/${{env.TARGET}}/release/media_tools MediaToolsInstaller/usr/local/bin
-          pkgbuild --identifier com.dreadster.mediatools --root MediaToolsInstaller --version ${{env.VERSION}} media_tools-${{env.VERSION}}-${{env.ARCH}}.dmg
+          pkgbuild --identifier com.dreadster.mediatools --root MediaToolsInstaller --version ${{env.VERSION}} media_tools-${{env.VERSION}}-${{env.ARCH}}.pkg
 
       - name: Artifact Folder
         run: |
           mkdir artifact
-          mv media_tools-${{env.VERSION}}-${{env.ARCH}}.dmg artifact
+          mv media_tools-${{env.VERSION}}-${{env.ARCH}}.pkg artifact
           mv target/${{env.TARGET}}/release/media_tools artifact/media_tools_macos_${{env.VERSION}}
 
       - name: Upload MacOs Artifacts
