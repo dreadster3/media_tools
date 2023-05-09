@@ -77,9 +77,6 @@ jobs:
       - name: Get version from Cargo.toml
         run: echo "VERSION=$(grep '^version' Cargo.toml | awk -F'"' '{print $2}')" >> $GITHUB_ENV
 
-      - name: Setup XCode Tools
-        run: xcode-select --install
-
       - name: Setup Rust
         uses: actions-rs/toolchain@v1
         with:
