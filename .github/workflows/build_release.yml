@@ -13,7 +13,7 @@ jobs:
   linux-build-and-release:
     runs-on: ubuntu-latest
     env:
-      TARGET: ${{env.ARCH}}-unknown-linux-gnu
+      TARGET: x86_64-unknown-linux-gnu
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -69,7 +69,7 @@ jobs:
   macos-build-and-release:
     runs-on: macos-latest
     env:
-      TARGET: ${{env.ARCH}}-apple-darwin
+      TARGET: x86_64-apple-darwin
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
