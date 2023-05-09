@@ -30,7 +30,7 @@ impl BlurCommand {
         let blurred = img.blur(intensity);
 
         blurred
-            .save(&self.output)
+            .save(&output_path)
             .map_err(|e| BlurError::ImageCrateError(e))?;
 
         println!("Image saved to {}", output_path.display());

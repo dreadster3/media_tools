@@ -52,7 +52,7 @@ impl ResizeCommand {
         };
 
         resized
-            .save(&self.output)
+            .save(&output_path)
             .map_err(|e| ResizeError::ImageCrateError(e))?;
 
         println!("Image saved to {}", output_path.display());
