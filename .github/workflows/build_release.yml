@@ -2,8 +2,8 @@ name: Build and Release Binaries
 
 on:
   push:
-    branches:
-      - feature/mac_os_installer
+    tags:
+      - "v*.*.*"
   workflow_dispatch:
 
 env:
