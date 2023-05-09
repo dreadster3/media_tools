@@ -22,8 +22,7 @@ jobs:
         run: |
           wget "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage"
           chmod a+x appimagetool-x86_64.AppImage
-          ln -s ./appimagetool-x86_64.AppImage /usr/local/bin/appimagetool
-          appimagetool --help
+          echo $PATH
       - name: Setup Rust
         uses: actions-rs/toolchain@v1
         with:
