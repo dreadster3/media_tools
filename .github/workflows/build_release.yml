@@ -90,7 +90,7 @@ jobs:
         run: |
           mkdir -p MediaToolsInstaller/usr/local/bin
           cp target/${{env.TARGET}}/release/media_tools MediaToolsInstaller/usr/local/bin
-          pkgbuild --root MediaToolsInstaller --version ${{env.VERSION}} media_tools-${{env.VERSION}}-${{env.ARCH}}.dmg
+          pkgbuild --identifier com.dreadster.mediatools --root MediaToolsInstaller --version ${{env.VERSION}} media_tools-${{env.VERSION}}-${{env.ARCH}}.dmg
 
       - name: Artifact Folder
         run: |
