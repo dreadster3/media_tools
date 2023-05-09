@@ -2,6 +2,8 @@ name: Build and Release Binaries
 
 on:
   push:
+    branches:
+      - feature/windows_installer
     tags:
       - "v*.*.*"
   workflow_dispatch:
@@ -99,6 +101,54 @@ jobs:
           mv target/${{env.TARGET}}/release/media_tools artifact/media_tools_macos_${{env.VERSION}}
 
       - name: Upload MacOs Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          path: artifact/
+          if-no-files-found: error
+
+  windows-build-and-release:
+    runs-on: windows-latest
+    env:
+      TARGET: x86_64-pc-windows-msvc
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Get version from Cargo.toml
+        run: echo "VERSION=$(grep '^version' Cargo.toml | awk -F'"' '{print $2}')" >> $GITHUB_ENV
+
+      - name: Install Innosetup
+        run: wget https://jrsoftware.org/download.php/is.exe
+
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - name: Build Source
+        run: cargo build --release --target ${{ env.TARGET }}
+
+      - name: Setup Innosetup Script
+        run: |
+          echo << EOF > script.iss
+          [Setup]
+          AppName=Media Tools
+          AppVersion=${{env.VERSION}}
+          DefaultDirName={pf}\Media Tools
+          OutputBaseFilename=media_tools-${{env.VERSION}}-${{env.ARCH}}
+
+          [Files]
+          Source: "target/${{env.TARGET}}/release/media_tools.exe"; DestDir: "{app}"
+          EOF
+
+      - name: Generate Installer
+        run: |
+          mkdir artifact
+          ./innosetup-6.2.2.exe ./script.iss
+          mv media_tools-${{env.VERSION}}-${{env.ARCH}}.exe artifact/
+
+      - name: Upload Windows Artifacts
         uses: actions/upload-artifact@v2
         with:
           path: artifact/
