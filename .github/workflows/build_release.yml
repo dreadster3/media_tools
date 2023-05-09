@@ -133,16 +133,16 @@ jobs:
 
       - name: Setup Innosetup Script
         run: |
-          echo ^( 
-          [Setup]^
-          AppName=Media Tools^
-          AppVersion=%VERSION%^
-          DefaultDirName={pf}\Media Tools^
-          OutputBaseFilename=media_tools-%VERSION%-%ARCH%^
-          ^
-          [Files]^
-          Source: "target\%TARGET%\release\media_tools.exe"; DestDir: "{app}"^
-          ^) > script.iss
+          Write-Host @"
+          [Setup]
+          AppName=Media Tools
+          AppVersion=${{env.VERSION}}
+          DefaultDirName={pf}\Media Tools
+          OutputBaseFilename=media_tools-${{env.VERSION}}-${{env.ARCH}}
+
+          [Files]
+          Source: "target/${{env.TARGET}}/release/media_tools.exe"; DestDir: "{app}"
+          "@ > script.iss
 
       - name: Generate Installer
         run: |
