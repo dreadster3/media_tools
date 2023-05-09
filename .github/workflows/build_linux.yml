@@ -1,0 +1,48 @@
+name: Build Linux
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+    branches:
+      - feature/linux_app_image
+  workflow_dispatch:
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    env:
+      ARCH: x86_64
+      TARGET: ${{ env.ARCH }}-unknown-linux-gnu
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Install AppImage Tool
+        run: |
+          wget "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage"
+          chmod a+x appimagetool-x86_64.AppImage
+          ln -s ./appimagetool-x86_64.AppImage /usr/local/bin/appimagetool
+          appimagetool --help
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - name: Install Cargo AppImage
+        run: cargo install cargo-appimage
+
+      - name: Build
+        run: cargo appimage --target=${{ env.TARGET }}
+
+      - name: Upload AppImage
+        uses: actions/upload-artifact@v2
+        with:
+          path: media_tools*.AppImage
+          if-no-files-found: error
+
+      - name: Upload Executable
+        uses: actions/upload-artifact@v2
+        with:
+          name: media_tools_linux
+          path: target/${{env.TARGET}}/release/media_tools
+          if-no-files-found: error
