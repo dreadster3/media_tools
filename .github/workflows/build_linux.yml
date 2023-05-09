@@ -26,7 +26,9 @@ jobs:
           chmod a+x appimagetool-x86_64.AppImage
           mv appimagetool-x86_64.AppImage appimagetool
           echo "$(pwd)"
-          echo "$(pwd)" >> $GITHUB_PATH
+          ls
+          export PATH=$PATH:$(pwd)
+          echo $PATH
           appimagetool --help
       - name: Setup Rust
         uses: actions-rs/toolchain@v1
