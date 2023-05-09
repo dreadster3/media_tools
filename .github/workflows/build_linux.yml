@@ -18,7 +18,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Get version from Cargo.toml
-        run: echo ::set-env name=VERSION::$(grep '^version' Cargo.toml | awk -F'"' '{print $2}')
+        run: echo "VERSION=$(grep '^version' Cargo.toml | awk -F'"' '{print $2}')" >> $GITHUB_ENV
 
       - name: Install Dependencies
         run: |
