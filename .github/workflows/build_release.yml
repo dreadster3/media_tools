@@ -152,7 +152,7 @@ jobs:
           [Registry]
           Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; \
               ValueType: expandsz; ValueName: "Path"; ValueData: "{olddata};{app}"; \
-              Check: NeedsAddPath('{app}')
+              Check: NeedsAddPath(ExpandConstant('{app}'))
 
           [Code]
           function NeedsAddPath(Param: string): boolean;
