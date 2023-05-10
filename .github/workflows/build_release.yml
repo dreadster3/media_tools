@@ -149,10 +149,16 @@ jobs:
           Source: "target/${{env.TARGET}}/release/media_tools.exe"; DestDir: "{app}"
           '@ > script.iss
 
+      - name: Check Innosetup Script
+        run: cat script.iss
+
       - name: Generate Installer
+        run: iscc /Qp .\script.iss
+
+      - name: Setup Artifact Folder
         run: |
+          ls
           mkdir artifact
-          iscc /Qp .\script.iss
           mv media_tools-${{env.VERSION}}-${{env.ARCH}}.exe artifact/
 
       - name: Upload Windows Artifacts
