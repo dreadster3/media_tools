@@ -121,6 +121,7 @@ jobs:
         run: |
           $version = Get-Content .\Cargo.toml | Select-String -Pattern '(?<=version = ")[^"]+'
           echo "VERSION=$version" >> $GITHUB_ENV
+          echo "Version found: $version"
 
       - name: Install Innosetup
         run: Invoke-WebRequest -OutFile innosetup.exe https://jrsoftware.org/download.php/is.exe
