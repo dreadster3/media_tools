@@ -151,6 +151,7 @@ jobs:
         run: |
           mkdir artifact
           ./innosetup.exe ./script.iss
+          ls
           mv media_tools-${{env.VERSION}}-${{env.ARCH}}.exe artifact/
 
       - name: Upload Windows Artifacts
