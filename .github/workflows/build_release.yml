@@ -149,8 +149,9 @@ jobs:
 
       - name: Generate Installer
         run: |
-          mkdir artifact
           ./innosetup.exe ./script.iss
+          ls
+          cd artifact 
           ls
           mv media_tools-${{env.VERSION}}-${{env.ARCH}}.exe artifact/
 
