@@ -66,6 +66,8 @@ jobs:
         with:
           path: artifact/
           if-no-files-found: error
+          retention-days: 1
+
   macos-build-and-release:
     runs-on: macos-latest
     env:
@@ -103,3 +105,131 @@ jobs:
         with:
           path: artifact/
           if-no-files-found: error
+          retention-days: 1
+
+  windows-build-and-release:
+    runs-on: windows-latest
+    env:
+      TARGET: x86_64-pc-windows-msvc
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Get version from Cargo.toml
+        run: |
+          $version = Get-Content Cargo.toml | Select-String -Pattern 'version = "(\d+\.\d+\.\d+-\w+)"' | ForEach-Object {$_.Matches.Groups[1].Value} | Select-Object -first 1
+          echo "VERSION=${version}" >> $env:GITHUB_ENV
+
+      - name: Install Innosetup
+        run: |
+          Invoke-WebRequest -OutFile innosetup.exe https://jrsoftware.org/download.php/is.exe
+          ./innosetup.exe /VERYSILENT /NORESTART /CURRENTUSER
+
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - name: Build Source
+        run: cargo build --release --target ${{ env.TARGET }}
+
+      - name: Setup Innosetup Script
+        run: |
+          $script=@'
+          [Setup]
+          AppName=MediaTools
+          AppVersion=${{env.VERSION}}
+          DefaultDirName={pf}\MediaTools
+          OutputBaseFilename=media_tools-${{env.VERSION}}-${{env.ARCH}}-setup
+          ChangesEnvironment=yes
+
+          [Files]
+          Source: "target/${{env.TARGET}}/release/media_tools.exe"; DestDir: "{app}"
+
+          [Registry]
+          Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; \
+              ValueType: expandsz; ValueName: "Path"; ValueData: "{olddata};{app}"; \
+              Check: NeedsAddPath(ExpandConstant('{app}'))
+
+          [Code]
+          function NeedsAddPath(Param: string): boolean;
+          var
+            OrigPath: string;
+          begin
+            if not RegQueryStringValue(HKEY_LOCAL_MACHINE,
+              'SYSTEM\CurrentControlSet\Control\Session Manager\Environment',
+              'Path', OrigPath)
+            then begin
+              Result := True;
+              exit;
+            end;
+            Result := Pos(';' + Param + ';', ';' + OrigPath + ';') = 0;
+          end;
+
+          const
+            EnvironmentKey = 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment';
+          procedure RemovePath(Path: string);
+          var
+            Paths: string;
+            P: Integer;
+          begin
+            if not RegQueryStringValue(HKLM, EnvironmentKey, 'Path', Paths) then
+            begin
+              Log('PATH not found');
+            end
+              else
+            begin
+              Log(Format('PATH is [%s]', [Paths]));
+
+              P := Pos(';' + Uppercase(Path) + ';', ';' + Uppercase(Paths) + ';');
+
+              if P = 0 then
+              begin
+                Log(Format('Path [%s] not found in PATH', [Path]));
+              end
+                else
+              begin
+                if P > 1 then P := P - 1;
+
+                Delete(Paths, P, Length(Path) + 1);
+
+                Log(Format('Path [%s] removed from PATH => [%s]', [Path, Paths]));
+
+                if RegWriteStringValue(HKLM, EnvironmentKey, 'Path', Paths) then
+                begin
+                  Log('PATH written');
+                end
+                  else
+                begin
+                  Log('Error writing PATH');
+                end;
+              end;
+            end;
+          end;
+
+          procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+          begin
+            if CurUninstallStep = usUninstall then
+            begin
+              RemovePath(ExpandConstant('{app}'));
+            end;
+          end;
+          '@
+          echo $script > script.iss
+
+      - name: Generate Installer
+        run: iscc /Qp .\script.iss
+
+      - name: Setup Artifact Folder
+        run: |
+          mkdir artifact
+          mv Output/media_tools-${{env.VERSION}}-${{env.ARCH}}-setup.exe artifact/
+          mv target/${{env.TARGET}}/release/media_tools.exe artifact/media_tools-${{env.VERSION}}-${{env.ARCH}}-Portable.exe
+
+      - name: Upload Windows Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          path: artifact/
+          if-no-files-found: error
+          retention-days: 1
