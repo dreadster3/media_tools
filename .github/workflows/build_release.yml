@@ -147,6 +147,26 @@ jobs:
 
           [Files]
           Source: "target/${{env.TARGET}}/release/media_tools.exe"; DestDir: "{app}"
+
+          [Registry]
+          Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; \
+              ValueType: expandsz; ValueName: "Path"; ValueData: "{olddata};{app}"; \
+              Check: NeedsAddPath('{app}')
+
+          [Code]
+          function NeedsAddPath(Param: string): boolean;
+          var
+            OrigPath: string;
+          begin
+            if not RegQueryStringValue(HKEY_LOCAL_MACHINE,
+              'SYSTEM\CurrentControlSet\Control\Session Manager\Environment',
+              'Path', OrigPath)
+            then begin
+              Result := True;
+              exit;
+            end;
+            Result := Pos(';' + Param + ';', ';' + OrigPath + ';') = 0;
+          end;
           '@
           echo $script > script.iss
 
