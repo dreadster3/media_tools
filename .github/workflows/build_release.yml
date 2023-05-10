@@ -127,10 +127,6 @@ jobs:
           Invoke-WebRequest -OutFile innosetup.exe https://jrsoftware.org/download.php/is.exe
           ./innosetup.exe /VERYSILENT /NORESTART /CURRENTUSER
 
-      - name: Test Innosetup
-        run: |
-          iscc /?
-
       - name: Setup Rust
         uses: actions-rs/toolchain@v1
         with:
@@ -144,9 +140,9 @@ jobs:
         run: |
           Write-Host @'
           [Setup]
-          AppName=Media Tools
+          AppName=MediaTools
           AppVersion=${{env.VERSION}}
-          DefaultDirName={pf}\Media Tools
+          DefaultDirName={pf}\MediaTools
           OutputBaseFilename=media_tools-${{env.VERSION}}-${{env.ARCH}}
 
           [Files]
@@ -156,8 +152,7 @@ jobs:
       - name: Generate Installer
         run: |
           mkdir artifact
-          iscc /q .\script.iss
-          ls
+          iscc /Qp .\script.iss
           mv media_tools-${{env.VERSION}}-${{env.ARCH}}.exe artifact/
 
       - name: Upload Windows Artifacts
