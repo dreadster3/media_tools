@@ -143,7 +143,7 @@ jobs:
           AppName=MediaTools
           AppVersion=${{env.VERSION}}
           DefaultDirName={pf}\MediaTools
-          OutputBaseFilename=media_tools-${{env.VERSION}}-${{env.ARCH}}
+          OutputBaseFilename=media_tools-${{env.VERSION}}-${{env.ARCH}}-setup
 
           [Files]
           Source: "target/${{env.TARGET}}/release/media_tools.exe"; DestDir: "{app}"
@@ -155,10 +155,8 @@ jobs:
 
       - name: Setup Artifact Folder
         run: |
-          ls
-          ls Output
           mkdir artifact
-          mv media_tools-${{env.VERSION}}-${{env.ARCH}}.exe artifact/
+          mv Output/media_tools-${{env.VERSION}}-${{env.ARCH}}-setup.exe artifact/
 
       - name: Upload Windows Artifacts
         uses: actions/upload-artifact@v2
