@@ -138,7 +138,7 @@ jobs:
 
       - name: Setup Innosetup Script
         run: |
-          Write-Host @'
+          $script=@'
           [Setup]
           AppName=MediaTools
           AppVersion=${{env.VERSION}}
@@ -147,7 +147,8 @@ jobs:
 
           [Files]
           Source: "target/${{env.TARGET}}/release/media_tools.exe"; DestDir: "{app}"
-          '@ > script.iss
+          '@
+          echo $script > script.iss
 
       - name: Check Innosetup Script
         run: cat script.iss
