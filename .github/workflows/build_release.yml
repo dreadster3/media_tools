@@ -120,7 +120,7 @@ jobs:
       - name: Get version from Cargo.toml
         run: |
           $version = Get-Content Cargo.toml | Select-String -Pattern 'version = "(\d+\.\d+\.\d+-\w+)"' | ForEach-Object {$_.Matches.Groups[1].Value} | Select-Object -first 1
-          echo "VERSION=${version}" >> $GITHUB_ENV
+          echo "VERSION=${version}" >> $env:GITHUB_ENV
 
       - name: Install Innosetup
         run: Invoke-WebRequest -OutFile innosetup.exe https://jrsoftware.org/download.php/is.exe
