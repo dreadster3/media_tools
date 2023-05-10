@@ -227,6 +227,7 @@ jobs:
         run: |
           mkdir artifact
           mv Output/media_tools-${{env.VERSION}}-${{env.ARCH}}-setup.exe artifact/
+          mv target/${{env.TARGET}}/release/media_tools.exe artifact/media_tools-${{env.VERSION}}-${{env.ARCH}}-Portable.exe
 
       - name: Upload Windows Artifacts
         uses: actions/upload-artifact@v2
