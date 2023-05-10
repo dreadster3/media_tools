@@ -2,8 +2,6 @@ name: Build and Release Binaries
 
 on:
   push:
-    branches:
-      - feature/windows_installer
     tags:
       - "v*.*.*"
   workflow_dispatch:
