@@ -128,7 +128,8 @@ jobs:
           ./innosetup.exe /VERYSILENT /NORESTART /CURRENTUSER
 
       - name: Test Innosetup
-        run: .\innosetup.exe /?
+        run: |
+          iscc /?
 
       - name: Setup Rust
         uses: actions-rs/toolchain@v1
