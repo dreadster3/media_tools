@@ -150,15 +150,13 @@ jobs:
           '@
           echo $script > script.iss
 
-      - name: Check Innosetup Script
-        run: cat script.iss
-
       - name: Generate Installer
         run: iscc /Qp .\script.iss
 
       - name: Setup Artifact Folder
         run: |
           ls
+          ls Output
           mkdir artifact
           mv media_tools-${{env.VERSION}}-${{env.ARCH}}.exe artifact/
 
