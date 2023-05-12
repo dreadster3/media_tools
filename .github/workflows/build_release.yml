@@ -80,7 +80,7 @@ jobs:
           EOF
           cat ./media_tools.AppDir/media_tools.desktop
           appimagetool media_tools.AppDir
-          mv media_tools*.AppImage media_tools-${{env.VERSION}}-${{env.ARCH}}.AppImage
+          mv media_tools*.AppImage artifact/media_tools-${{env.VERSION}}-${{env.ARCH}}.AppImage
 
       - name: Upload Linux Artifacts
         uses: actions/upload-artifact@v2
