@@ -75,7 +75,7 @@ jobs:
           Exec=media_tools
           Icon=icon
           Type=Application
-          Categories=Utility
+          Categories=Utility;
           X-AppImage-Version=${{env.VERSION}}
           EOF
           appimagetool media_tools.AppDir
