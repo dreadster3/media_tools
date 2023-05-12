@@ -15,3 +15,7 @@ path = "src/main.rs"
 clap = { version = "4.2.7", features = ["derive"] }
 image = "0.24.6"
 imageproc = "0.23.0"
+
+# Debian package metadata
+[package.metadata.deb]
+depends = "$auto, ffmpeg (>= 4.2.2)"

@@ -9,3 +9,12 @@ pub fn to_absolute_path(path: &str) -> std::path::PathBuf {
 
     return current_dir.join(path);
 }
+
+pub fn normalize_command(command: &str) -> String {
+    let original_dir = std::env::var("OWD");
+
+    return match original_dir {
+        Ok(_) => format!("usr/bin/{}", command),
+        Err(_) => command.to_string(),
+    };
+}
