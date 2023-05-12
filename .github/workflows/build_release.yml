@@ -69,7 +69,7 @@ jobs:
           cp target/${{env.TARGET}}/release/media_tools ./media_tools.AppDir/usr/bin
           cp ffmpeg-bin/* ./media_tools.AppDir/usr/bin || true
           touch media_tools.AppDir/icon.png
-          echo < EOF > ./media_tools.AppDir/media_tools.desktop
+          echo << EOF > ./media_tools.AppDir/media_tools.desktop
           [Desktop Entry]
           Name=media_tools
           Exec=media_tools
