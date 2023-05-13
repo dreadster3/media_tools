@@ -1,6 +1,6 @@
 use clap::{Args, ValueEnum};
 use image::GenericImageView;
-use log::info;
+use log::{error, info};
 
 use super::utils as image_utils;
 use crate::internal::utils;
@@ -53,7 +53,7 @@ impl WatermarkCommand {
         let (width, height) = img.dimensions();
 
         if watermark_width > width || watermark_height > height {
-            println!("Watermark is bigger than the image");
+            error!("Watermark is bigger than the image");
             return Err(WatermarkError::DimensionError);
         }
 

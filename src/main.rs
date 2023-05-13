@@ -1,7 +1,7 @@
 use std::io::Write;
 
 use clap::Parser;
-use log::debug;
+use log::{debug, info};
 use media_tools::cli::cli::Cli;
 
 fn main() {
@@ -19,7 +19,7 @@ fn main() {
     match options.execute() {
         Ok(_) => {}
         Err(e) => {
-            println!("Error: {:?}", e);
+            info!("Error: {:?}", e);
         }
     }
 }
