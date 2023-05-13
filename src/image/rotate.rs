@@ -1,6 +1,7 @@
 use clap::Args;
 use image::{ImageBuffer, Rgba};
 use imageproc::geometric_transformations;
+use log::info;
 
 use crate::image::utils as image_utils;
 use crate::internal::utils;
@@ -92,7 +93,7 @@ impl RotateCommand {
             .save(&output_path)
             .map_err(|e| RotateError::ImageCrateError(e))?;
 
-        println!("Image saved to {}", output_path.display());
+        info!("Image saved to {}", output_path.display());
 
         return Ok(());
     }

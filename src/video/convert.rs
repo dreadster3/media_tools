@@ -1,6 +1,7 @@
 use std::process::Command;
 
 use clap::Args;
+use log::info;
 
 use crate::internal::utils;
 
@@ -63,7 +64,7 @@ impl VideoConvertCommand {
             }
         }
 
-        println!("Video saved to {}", output_path.display());
+        info!("Video saved to {}", output_path.display());
 
         return Ok(());
     }

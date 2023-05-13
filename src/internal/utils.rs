@@ -1,3 +1,5 @@
+use log::debug;
+
 pub fn to_absolute_path(path: &str) -> std::path::PathBuf {
     // Fix needed to run AppImage on Linux
     let original_dir = std::env::var("OWD");
@@ -12,6 +14,8 @@ pub fn to_absolute_path(path: &str) -> std::path::PathBuf {
 
 pub fn normalize_command(command: &str) -> String {
     let original_dir = std::env::var("OWD");
+
+    debug!("Original dir: {:?}", original_dir);
 
     return match original_dir {
         Ok(_) => format!("usr/bin/{}", command),

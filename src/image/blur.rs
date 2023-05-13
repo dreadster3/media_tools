@@ -1,4 +1,5 @@
 use clap::Args;
+use log::info;
 
 use crate::internal::utils;
 
@@ -33,7 +34,7 @@ impl BlurCommand {
             .save(&output_path)
             .map_err(|e| BlurError::ImageCrateError(e))?;
 
-        println!("Image saved to {}", output_path.display());
+        info!("Image saved to {}", output_path.display());
 
         return Ok(());
     }
