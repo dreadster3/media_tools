@@ -66,6 +66,7 @@ jobs:
         run: |
           mkdir -p media_tools.AppDir/usr/bin
           wget -O media_tools.AppDir/AppRun https://github.com/AppImage/AppImageKit/releases/download/13/AppRun-x86_64
+          chmod +x ./media_tools.AppDir/AppRun
           cp target/${{env.TARGET}}/release/media_tools ./media_tools.AppDir/usr/bin
           cp ffmpeg-bin/* ./media_tools.AppDir/usr/bin || true
           touch media_tools.AppDir/icon.png
