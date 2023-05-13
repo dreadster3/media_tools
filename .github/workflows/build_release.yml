@@ -145,6 +145,12 @@ jobs:
           Invoke-WebRequest -OutFile innosetup.exe https://jrsoftware.org/download.php/is.exe
           ./innosetup.exe /VERYSILENT /NORESTART /CURRENTUSER
 
+      - name: Download FFmpeg Binary
+        run: |
+          # Invoke-ebRequest -OutFile 7z.exe https://www.7-zip.org/a/7zr.exe
+          Invoke-WebRequest -OutFile ffmpeg.7z https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-full.7z
+          7z.exe e -r -offmpeg-bin ./ffmpeg.7z *.exe
+
       - name: Setup Rust
         uses: actions-rs/toolchain@v1
         with:
@@ -166,6 +172,7 @@ jobs:
 
           [Files]
           Source: "target/${{env.TARGET}}/release/media_tools.exe"; DestDir: "{app}"
+          Source: "ffmpeg-bin/*"; DestDir: "{app}"
 
           [Registry]
           Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; \
