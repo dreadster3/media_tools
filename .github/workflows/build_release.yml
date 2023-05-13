@@ -149,9 +149,9 @@ jobs:
 
       - name: Download FFmpeg Binary
         run: |
-          Invoke-WebRequest -OutFile 7z.exe https://www.7-zip.org/a/7zr.exe
+          # Invoke-ebRequest -OutFile 7z.exe https://www.7-zip.org/a/7zr.exe
           Invoke-WebRequest -OutFile ffmpeg.7z https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-full.7z
-          7z.exe e -offmpeg-bin ./ffmpeg.7z *.exe
+          7z.exe e -r -offmpeg-bin ./ffmpeg.7z *.exe
 
       - name: Setup Rust
         uses: actions-rs/toolchain@v1
