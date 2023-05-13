@@ -4,8 +4,6 @@ on:
   push:
     tags:
       - "v*.*.*"
-    branches:
-      - feature/video_format_conversion
   workflow_dispatch:
 
 env:
