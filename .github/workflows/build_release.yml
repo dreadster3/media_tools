@@ -152,7 +152,6 @@ jobs:
           # Invoke-ebRequest -OutFile 7z.exe https://www.7-zip.org/a/7zr.exe
           Invoke-WebRequest -OutFile ffmpeg.7z https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-full.7z
           7z.exe e -r -offmpeg-bin ./ffmpeg.7z *.exe
-          ls ffmpeg-bin
 
       - name: Setup Rust
         uses: actions-rs/toolchain@v1
