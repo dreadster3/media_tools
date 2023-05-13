@@ -13,12 +13,12 @@ pub fn to_absolute_path(path: &str) -> std::path::PathBuf {
 }
 
 pub fn normalize_command(command: &str) -> String {
-    let original_dir = std::env::var("OWD");
+    let app_dir = std::env::var("APPDIR");
 
-    debug!("Original dir: {:?}", original_dir);
+    debug!("App dir: {:?}", app_dir);
 
-    return match original_dir {
-        Ok(_) => format!("usr/bin/{}", command),
+    return match app_dir {
+        Ok(dir) => format!("{}/usr/bin/{}", dir, command),
         Err(_) => command.to_string(),
     };
 }
