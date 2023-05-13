@@ -1,7 +1,7 @@
 use std::process::Command;
 
 use clap::Args;
-use log::info;
+use log::{debug, info};
 
 use crate::internal::utils;
 
@@ -29,16 +29,12 @@ pub enum FFmpegError {
 
 impl VideoConvertCommand {
     pub fn execute(&self, input: &str) -> Result<(), VideoConvertError> {
-        println!(
-            "Working from {}",
-            std::env::current_dir().unwrap().display()
-        );
         let input_path = utils::to_absolute_path(input);
         let output_path = utils::to_absolute_path(&self.output);
 
         let normalized_command = utils::normalize_command("ffmpeg");
 
-        println!("Normalizing command: {}", normalized_command);
+        debug!("Normalizing command: {}", normalized_command);
 
         let mut command = Command::new(&normalized_command);
 
