@@ -28,10 +28,18 @@ pub enum FFmpegError {
 
 impl VideoConvertCommand {
     pub fn execute(&self, input: &str) -> Result<(), VideoConvertError> {
+        println!(
+            "Working from {}",
+            std::env::current_dir().unwrap().display()
+        );
         let input_path = utils::to_absolute_path(input);
         let output_path = utils::to_absolute_path(&self.output);
 
-        let mut command = Command::new(utils::normalize_command("ffmpeg"));
+        let normalized_command = utils::normalize_command("ffmpeg");
+
+        println!("Normalizing command: {}", normalized_command);
+
+        let mut command = Command::new(&normalized_command);
 
         // Argument handling
         command.arg("-y").arg("-i").arg(&input_path);
