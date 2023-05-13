@@ -1,4 +1,5 @@
 use clap::Args;
+use log::info;
 
 use crate::internal::utils;
 
@@ -25,7 +26,7 @@ impl ConvertCommand {
         img.save(&output_path)
             .map_err(|e| ConvertError::CrateError(e))?;
 
-        println!("Image saved to {}", output_path.display());
+        info!("Image saved to {}", output_path.display());
 
         return Ok(());
     }
