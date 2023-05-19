@@ -4,7 +4,7 @@ use std::io::BufWriter;
 use clap::Args;
 use hound;
 use log::{error, info, warn};
-use symphonia::core::{audio, errors, formats, io, probe};
+use symphonia::core::{audio, codecs, errors, formats, io, probe};
 use symphonia::default;
 
 use crate::internal::utils;
@@ -21,6 +21,7 @@ pub enum AudioConvertError {
     SymphoniaError(errors::Error),
     DecodeError(errors::Error),
     HoundError(hound::Error),
+    EncodeError(hound::Error),
 }
 
 impl AudioConvertCommand {
@@ -45,24 +46,23 @@ impl AudioConvertCommand {
 
         let mut format = probe.format;
 
-        let track = format.default_track().unwrap();
+        // Default track or find the first non-null track
+        let track = format
+            .default_track()
+            .or_else(|| {
+                format
+                    .tracks()
+                    .iter()
+                    .find(|t| t.codec_params.codec != codecs::CODEC_TYPE_NULL)
+            })
+            .unwrap();
 
         let track_id = track.id;
 
         let mut decoder = default::get_codecs()
             .make(&track.codec_params, &Default::default())
-            .unwrap();
+            .map_err(|e| AudioConvertError::SymphoniaError(e))?;
 
-        // println!(
-        //     "Bits per sample: {}",
-        //     track.codec_params.bits_per_sample.unwrap()
-        // );
-        println!("Sample Rate: {}", track.codec_params.sample_rate.unwrap());
-
-        // let mut sample_count = 0;
-        // let mut sample_buf = None;
-        // let mut channels: usize = 0;
-        // let mut sampling_rate: u32 = 0;
         let mut writer: Option<hound::WavWriter<BufWriter<File>>> = None;
         let mut sample_buffer: Option<audio::SampleBuffer<f32>> = None;
 
@@ -133,7 +133,8 @@ impl AudioConvertCommand {
 
                 if let Some(w) = writer.as_mut() {
                     for sample in buf.samples() {
-                        w.write_sample(*sample).unwrap();
+                        w.write_sample(*sample)
+                            .map_err(|e| AudioConvertError::EncodeError(e))?;
                     }
                 }
             }
