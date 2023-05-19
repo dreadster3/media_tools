@@ -2,8 +2,8 @@ use std::{fs, io};
 
 use clap::Args;
 use hound;
-use log::{error, info, warn};
-use symphonia::core::{audio, codecs, errors, formats, io, probe};
+use log::{info, warn};
+use symphonia::core::{audio, codecs, errors, formats, io as symphonia_io, probe};
 use symphonia::default;
 
 use crate::internal::utils;
@@ -31,7 +31,8 @@ impl AudioConvertCommand {
         let mut hint = probe::Hint::new();
         let format_opts = formats::FormatOptions::default();
         let input_file = fs::File::open(&input_path).map_err(|e| AudioConvertError::IoError(e))?;
-        let media_source = io::MediaSourceStream::new(Box::new(input_file), Default::default());
+        let media_source =
+            symphonia_io::MediaSourceStream::new(Box::new(input_file), Default::default());
 
         if let Some(extension) = input_path.extension() {
             if let Some(extension_str) = extension.to_str() {
