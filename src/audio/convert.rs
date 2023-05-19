@@ -1,5 +1,4 @@
-use std::fs::{self, File};
-use std::io::BufWriter;
+use std::{fs, io};
 
 use clap::Args;
 use hound;
@@ -63,7 +62,7 @@ impl AudioConvertCommand {
             .make(&track.codec_params, &Default::default())
             .map_err(|e| AudioConvertError::SymphoniaError(e))?;
 
-        let mut writer: Option<hound::WavWriter<BufWriter<File>>> = None;
+        let mut writer: Option<hound::WavWriter<io::BufWriter<fs::File>>> = None;
         let mut sample_buffer: Option<audio::SampleBuffer<f32>> = None;
 
         loop {
