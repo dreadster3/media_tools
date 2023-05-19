@@ -1,9 +1,9 @@
-use std::fs;
+use std::fs::{self, File};
+use std::io::BufWriter;
 
 use clap::Args;
-use hound::{WavSpec, WavWriter};
+use hound;
 use log::{error, info, warn};
-use symphonia::core::audio::{RawSample, RawSampleBuffer, SampleBuffer};
 use symphonia::core::{audio, errors, formats, io, probe};
 use symphonia::default;
 
@@ -19,6 +19,8 @@ pub struct AudioConvertCommand {
 pub enum AudioConvertError {
     IoError(std::io::Error),
     SymphoniaError(errors::Error),
+    DecodeError(errors::Error),
+    HoundError(hound::Error),
 }
 
 impl AudioConvertCommand {
@@ -57,77 +59,82 @@ impl AudioConvertCommand {
         // );
         println!("Sample Rate: {}", track.codec_params.sample_rate.unwrap());
 
-        let mut sample_count = 0;
-        let mut sample_buf = None;
-        let mut channels: usize = 0;
-        let mut sampling_rate: u32 = 0;
-        let mut writer = None;
+        // let mut sample_count = 0;
+        // let mut sample_buf = None;
+        // let mut channels: usize = 0;
+        // let mut sampling_rate: u32 = 0;
+        let mut writer: Option<hound::WavWriter<BufWriter<File>>> = None;
+        let mut sample_buffer: Option<audio::SampleBuffer<f32>> = None;
 
         loop {
-            match format.next_packet() {
-                Ok(packet) => {
-                    if packet.track_id() != track_id {
-                        continue;
-                    }
-
-                    match decoder.decode(&packet) {
-                        Ok(decoded_packet) => {
-                            if sample_buf.is_none() {
-                                // Get the audio buffer specification.
-                                let spec = *decoded_packet.spec();
-
-                                // Get the capacity of the decoded buffer. Note: This is capacity,
-                                // not length!
-                                let duration = decoded_packet.capacity() as u64;
-                                println!("Duration: {}", duration);
-
-                                channels = spec.channels.count();
-                                sampling_rate = spec.rate;
-
-                                // Create the f32 sample buffer.
-                                sample_buf = Some(audio::SampleBuffer::<f32>::new(duration, spec));
-                                writer = Some(
-                                    WavWriter::create(
-                                        &output_path,
-                                        WavSpec {
-                                            channels: channels as u16,
-                                            sample_rate: sampling_rate,
-                                            bits_per_sample: 32,
-                                            sample_format: hound::SampleFormat::Float,
-                                        },
-                                    )
-                                    .unwrap(),
-                                );
-                            }
-
-                            // Copy the decoded audio buffer into the sample buffer in an
-                            // interleaved format.
-                            if let Some(buf) = &mut sample_buf {
-                                buf.copy_interleaved_ref(decoded_packet);
-
-                                if let Some(w) = &mut writer {
-                                    for sample in buf.samples() {
-                                        w.write_sample(*sample).unwrap();
-                                    }
-                                }
-                            }
-                        }
-                        Err(errors::Error::DecodeError(err)) => {
-                            warn!("\nDecode error: {}", err);
-                        }
-                        Err(e) => {
-                            return Err(AudioConvertError::SymphoniaError(e));
-                        }
-                    }
-                }
+            let packet = match format.next_packet() {
+                Ok(packet) => packet,
                 Err(errors::Error::IoError(err)) => {
                     if err.kind() == std::io::ErrorKind::UnexpectedEof {
                         break;
+                    } else {
+                        return Err(AudioConvertError::IoError(err));
                     }
                 }
-                Err(err) => {
-                    error!("Error reading packet: {}", err);
-                    return Err(AudioConvertError::SymphoniaError(err));
+                Err(e) => return Err(AudioConvertError::DecodeError(e)),
+            };
+
+            if packet.track_id() != track_id {
+                continue;
+            }
+
+            let decoded_packet = match decoder.decode(&packet) {
+                Ok(decoded_packet) => decoded_packet,
+                Err(errors::Error::DecodeError(err)) => {
+                    warn!("Decode error: {}", err);
+                    continue;
+                }
+                Err(e) => return Err(AudioConvertError::SymphoniaError(e)),
+            };
+
+            sample_buffer = match sample_buffer {
+                Some(sample_buffer) => Some(sample_buffer),
+                None => {
+                    let spec = *decoded_packet.spec();
+
+                    let duration = decoded_packet.capacity() as u64;
+
+                    let sample_buffer = audio::SampleBuffer::new(duration, spec);
+
+                    Some(sample_buffer)
+                }
+            };
+
+            writer = match writer {
+                Some(writer) => Some(writer),
+                None => {
+                    let spec = *decoded_packet.spec();
+
+                    let channels = spec.channels.count();
+                    let sampling_rate = spec.rate;
+
+                    let writer = hound::WavWriter::create(
+                        &output_path,
+                        hound::WavSpec {
+                            channels: channels as u16,
+                            sample_rate: sampling_rate,
+                            bits_per_sample: 32,
+                            sample_format: hound::SampleFormat::Float,
+                        },
+                    )
+                    .map_err(|e| AudioConvertError::HoundError(e))?;
+
+                    Some(writer)
+                }
+            };
+
+            if let Some(buf) = sample_buffer.as_mut() {
+                buf.copy_interleaved_ref(decoded_packet);
+
+                if let Some(w) = writer.as_mut() {
+                    for sample in buf.samples() {
+                        w.write_sample(*sample).unwrap();
+                    }
                 }
             }
         }
