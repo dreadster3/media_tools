@@ -14,9 +14,11 @@ path = "src/main.rs"
 [dependencies]
 clap = { version = "4.2.7", features = ["derive"] }
 env_logger = "0.10.0"
+hound = "3.5.0"
 image = "0.24.6"
 imageproc = "0.23.0"
 log = "0.4.17"
+symphonia = { version = "0.5.2", features = ["mp3"] }
 
 # Debian package metadata
 [package.metadata.deb]
