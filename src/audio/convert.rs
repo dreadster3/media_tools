@@ -1,11 +1,13 @@
-use std::{fs, io};
+use std::fs;
 
 use clap::Args;
-use hound;
 use log::{info, warn};
+use mp3lame_encoder;
 use symphonia::core::{audio, codecs, errors, formats, io as symphonia_io, probe};
 use symphonia::default;
 
+use crate::audio::encoders;
+use crate::audio::encoders::encoder::Encode;
 use crate::internal::utils;
 
 #[derive(Args)]
@@ -19,8 +21,7 @@ pub enum AudioConvertError {
     IoError(std::io::Error),
     SymphoniaError(errors::Error),
     DecodeError(errors::Error),
-    HoundError(hound::Error),
-    EncodeError(hound::Error),
+    EncodeError(encoders::error::Error),
 }
 
 impl AudioConvertCommand {
@@ -59,12 +60,39 @@ impl AudioConvertCommand {
 
         let track_id = track.id;
 
+        let channels = track.codec_params.channels.unwrap().count();
+        let sample_rate = track.codec_params.sample_rate.unwrap();
         let mut decoder = default::get_codecs()
             .make(&track.codec_params, &Default::default())
             .map_err(|e| AudioConvertError::SymphoniaError(e))?;
 
-        let mut writer: Option<hound::WavWriter<io::BufWriter<fs::File>>> = None;
+        // let mut writer = hound::WavWriter::create(
+        //     &output_path,
+        //     hound::WavSpec {
+        //         channels: channels as u16,
+        //         sample_rate: sampling_rate,
+        //         bits_per_sample: 32,
+        //         sample_format: hound::SampleFormat::Float,
+        //     },
+        // )
+        // .map_err(|e| AudioConvertError::HoundError(e))?;
+        // let mut mp3_encoder_builder = mp3lame_encoder::Builder::new().unwrap();
+        // mp3_encoder_builder
+        //     .set_num_channels(channels as u8)
+        //     .unwrap();
+        // mp3_encoder_builder.set_sample_rate(sampling_rate).unwrap();
+        // mp3_encoder_builder
+        //     .set_brate(mp3lame_encoder::Birtate::Kbps192)
+        //     .unwrap();
+        // mp3_encoder_builder
+        //     .set_quality(mp3lame_encoder::Quality::Best)
+        //     .unwrap();
+        // let mut mp3_encoder = mp3_encoder_builder.build().unwrap();
+        // let mut file_test = fs::File::create("test.mp3").unwrap();
+
         let mut sample_buffer: Option<audio::SampleBuffer<f32>> = None;
+        let mut writer = encoders::encoder::get_encoder(&output_path, channels as u16, sample_rate)
+            .map_err(|e| AudioConvertError::EncodeError(e))?;
 
         loop {
             let packet = match format.next_packet() {
@@ -105,43 +133,36 @@ impl AudioConvertCommand {
                 }
             };
 
-            writer = match writer {
-                Some(writer) => Some(writer),
-                None => {
-                    let spec = *decoded_packet.spec();
-
-                    let channels = spec.channels.count();
-                    let sampling_rate = spec.rate;
-
-                    let writer = hound::WavWriter::create(
-                        &output_path,
-                        hound::WavSpec {
-                            channels: channels as u16,
-                            sample_rate: sampling_rate,
-                            bits_per_sample: 32,
-                            sample_format: hound::SampleFormat::Float,
-                        },
-                    )
-                    .map_err(|e| AudioConvertError::HoundError(e))?;
-
-                    Some(writer)
-                }
-            };
-
             if let Some(buf) = sample_buffer.as_mut() {
                 buf.copy_interleaved_ref(decoded_packet);
 
-                if let Some(w) = writer.as_mut() {
-                    for sample in buf.samples() {
-                        w.write_sample(*sample)
-                            .map_err(|e| AudioConvertError::EncodeError(e))?;
-                    }
-                }
-            }
-        }
+                writer
+                    .encode(buf.samples())
+                    .map_err(|e| AudioConvertError::EncodeError(e))?;
 
-        if let Some(w) = writer {
-            w.finalize().unwrap();
+                // let data = InterleavedPcm { 0: buf.samples() };
+                //
+                // let mut mp3_out_buffer = Vec::<u8>::new();
+                // mp3_out_buffer.
+                // reserve(mp3lame_encoder::max_required_buffer_size(data.0.
+                // len() / 2));
+                //
+                // let encoded_size = mp3_encoder
+                //     .encode(data, mp3_out_buffer.spare_capacity_mut())
+                //     .unwrap();
+                // unsafe {
+                //     mp3_out_buffer.set_len(mp3_out_buffer.len().
+                // wrapping_add(encoded_size)); }
+                //
+                // let encoded_size = mp3_encoder
+                //     .flush::<mp3lame_encoder::FlushNoGap>(mp3_out_buffer.
+                // spare_capacity_mut())     .unwrap();
+                // unsafe {
+                //     mp3_out_buffer.set_len(mp3_out_buffer.len().
+                // wrapping_add(encoded_size)); }
+                //
+                // file_test.write(mp3_out_buffer.as_slice()).unwrap();
+            }
         }
 
         info!(
