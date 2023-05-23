@@ -2,12 +2,11 @@ use std::fs;
 
 use clap::Args;
 use log::{info, warn};
-use mp3lame_encoder;
 use symphonia::core::{audio, codecs, errors, formats, io as symphonia_io, probe};
 use symphonia::default;
 
 use crate::audio::encoders;
-use crate::audio::encoders::encoder::Encode;
+use crate::audio::encoders::core::Encode;
 use crate::internal::utils;
 
 #[derive(Args)]
@@ -21,7 +20,7 @@ pub enum AudioConvertError {
     IoError(std::io::Error),
     SymphoniaError(errors::Error),
     DecodeError(errors::Error),
-    EncodeError(encoders::error::Error),
+    EncodeError(encoders::errors::Error),
 }
 
 impl AudioConvertCommand {
@@ -91,7 +90,7 @@ impl AudioConvertCommand {
         // let mut file_test = fs::File::create("test.mp3").unwrap();
 
         let mut sample_buffer: Option<audio::SampleBuffer<f32>> = None;
-        let mut writer = encoders::encoder::get_encoder(&output_path, channels as u16, sample_rate)
+        let mut writer = encoders::core::get_encoder(&output_path, channels as u16, sample_rate)
             .map_err(|e| AudioConvertError::EncodeError(e))?;
 
         loop {

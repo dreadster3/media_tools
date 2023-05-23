@@ -1,6 +1,6 @@
-pub mod encoder;
+pub mod core;
 
-pub mod mp3;
-pub mod wav;
+mod mp3;
+mod wav;
 
-pub mod error;
+pub mod errors;
