@@ -598,7 +598,7 @@ dependencies = [
 
 [[package]]
 name = "media_tools"
-version = "0.1.0-beta5"
+version = "0.1.0-beta7"
 dependencies = [
  "clap",
  "env_logger",
