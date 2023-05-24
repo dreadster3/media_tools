@@ -1,5 +1,6 @@
 use clap::{Parser, Subcommand};
 
+use crate::audio::cli::{AudioCommand, AudioError};
 use crate::image::cli::{ImageCommand, ImageError};
 use crate::video::cli::{VideoCommand, VideoError};
 
@@ -23,12 +24,17 @@ pub enum EMode {
     /// Video operations
     #[clap(subcommand, name = "video")]
     Video(VideoCommand),
+
+    /// Audio operations
+    #[clap(subcommand, name = "audio")]
+    Audio(AudioCommand),
 }
 
 #[derive(Debug)]
 pub enum CliError {
     ImageError(ImageError),
     VideoError(VideoError),
+    AudioError(AudioError),
 }
 
 impl Cli {
@@ -41,6 +47,10 @@ impl Cli {
             EMode::Video(video) => video
                 .execute(self.input.as_deref())
                 .map_err(|e| CliError::VideoError(e)),
+
+            EMode::Audio(audio) => audio
+                .execute(self.input.as_deref())
+                .map_err(|e| CliError::AudioError(e)),
         }
     }
 }
