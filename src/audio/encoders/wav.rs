@@ -2,8 +2,8 @@ use std::{fs, io, path};
 
 use hound;
 
-use super::encoder::Encode;
-use super::error;
+use super::core::Encode;
+use super::errors;
 
 #[derive(Debug)]
 pub enum WavEncodeError {
@@ -15,7 +15,11 @@ pub struct WavEncoder {
 }
 
 impl WavEncoder {
-    pub fn new(filename: &path::Path, channels: u16, sample_rate: u32) -> Self {
+    pub fn new(
+        filename: &path::Path,
+        channels: u16,
+        sample_rate: u32,
+    ) -> Result<Self, WavEncodeError> {
         let writer = hound::WavWriter::create(
             filename,
             hound::WavSpec {
@@ -25,19 +29,18 @@ impl WavEncoder {
                 sample_format: hound::SampleFormat::Float,
             },
         )
-        .expect("Could not create wav writer");
+        .map_err(|e| WavEncodeError::HoundError(e))?;
 
-        return Self { writer };
+        return Ok(Self { writer });
     }
 }
 
 impl Encode for WavEncoder {
-    fn encode(&mut self, data: &[f32]) -> Result<(), error::Error> {
+    fn encode(&mut self, data: &[f32]) -> Result<(), errors::Error> {
         for sample in data.iter() {
-            match self.writer.write_sample(*sample) {
-                Ok(()) => continue,
-                Err(e) => WavEncodeError::HoundError(e),
-            };
+            self.writer
+                .write_sample(*sample)
+                .map_err(|e| errors::Error::WavEncodeError(WavEncodeError::HoundError(e)))?;
         }
 
         return Ok(());
