@@ -1,12 +1,14 @@
 use std::{fs, io, path};
 
 use hound;
+use thiserror::Error;
 
 use super::core::Encode;
 use super::errors;
 
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum WavEncodeError {
+    #[error("{0}")]
     HoundError(hound::Error),
 }
 

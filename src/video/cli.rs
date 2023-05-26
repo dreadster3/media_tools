@@ -1,4 +1,5 @@
 use clap::Subcommand;
+use thiserror::Error;
 
 use super::convert::{VideoConvertCommand, VideoConvertError};
 
@@ -8,10 +9,13 @@ pub enum VideoCommand {
     Convert(VideoConvertCommand),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum VideoError {
+    #[error("{0}")]
     ConvertError(VideoConvertError),
+    #[error("No input file provided")]
     NoInputError,
+    #[error("Function not implemented")]
     NotImplementedError,
 }
 

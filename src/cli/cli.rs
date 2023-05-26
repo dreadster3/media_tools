@@ -1,4 +1,5 @@
 use clap::{Parser, Subcommand};
+use thiserror::Error;
 
 use crate::audio::cli::{AudioCommand, AudioError};
 use crate::image::cli::{ImageCommand, ImageError};
@@ -30,10 +31,13 @@ pub enum EMode {
     Audio(AudioCommand),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum CliError {
+    #[error("{0}")]
     ImageError(ImageError),
+    #[error("{0}")]
     VideoError(VideoError),
+    #[error("{0}")]
     AudioError(AudioError),
 }
 

@@ -1,6 +1,7 @@
 use clap::{Args, ValueEnum};
 use image::GenericImageView;
 use log::{error, info};
+use thiserror::Error;
 
 use super::utils as image_utils;
 use crate::internal::utils;
@@ -33,9 +34,11 @@ pub enum WatermarkPosition {
     BottomRight,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum WatermarkError {
+    #[error("Image crate error")]
     CrateImageError(image::ImageError),
+    #[error("Dimension error")]
     DimensionError,
 }
 

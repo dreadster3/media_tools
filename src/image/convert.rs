@@ -1,5 +1,6 @@
 use clap::Args;
 use log::info;
+use thiserror::Error;
 
 use crate::internal::utils;
 
@@ -9,10 +10,13 @@ pub struct ConvertCommand {
     output: String,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum ConvertError {
+    #[error("{0}")]
     IOError(std::io::Error),
+    #[error("{0}")]
     CrateError(image::ImageError),
+    #[error("Unsupported format")]
     UnsupportedFormat,
 }
 

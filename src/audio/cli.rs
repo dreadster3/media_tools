@@ -1,4 +1,5 @@
 use clap::Subcommand;
+use thiserror::Error;
 
 use super::convert::{AudioConvertCommand, AudioConvertError};
 
@@ -8,9 +9,11 @@ pub enum AudioCommand {
     Convert(AudioConvertCommand),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum AudioError {
+    #[error("{0}")]
     ConvertError(AudioConvertError),
+    #[error("No input file provided")]
     NoInputError,
 }
 

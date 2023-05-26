@@ -1,4 +1,5 @@
 use clap::Subcommand;
+use thiserror::Error;
 
 use super::blur::{BlurCommand, BlurError};
 use super::convert::{ConvertCommand, ConvertError};
@@ -29,14 +30,21 @@ pub enum ImageCommand {
     Blur(BlurCommand),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum ImageError {
+    #[error("{0}")]
     ResizeError(ResizeError),
+    #[error("{0}")]
     ConvertError(ConvertError),
+    #[error("{0}")]
     RotateError(RotateError),
+    #[error("{0}")]
     WatermarkError(WatermarkError),
+    #[error("{0}")]
     Blur(BlurError),
+    #[error("No input file provided")]
     NoInputError,
+    #[error("Function not implemented")]
     NotImplementedError,
 }
 
