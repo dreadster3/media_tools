@@ -2,6 +2,7 @@ use std::process::Command;
 
 use clap::Args;
 use log::{debug, info};
+use thiserror::Error;
 
 use crate::internal::utils;
 
@@ -14,16 +15,19 @@ pub struct VideoConvertCommand {
     skip_encoding: bool,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum VideoConvertError {
+    #[error("{0}")]
     IOError(std::io::Error),
+    #[error("{0}")]
     FFmpegError(FFmpegError),
+    #[error("Unsupported format")]
     UnsupportedFormat,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum FFmpegError {
-    UnsupportedFormat,
+    #[error("Executable not found")]
     ExecutableNotFound,
 }
 

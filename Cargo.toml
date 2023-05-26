@@ -20,6 +20,7 @@ imageproc = "0.23.0"
 log = "0.4.17"
 mp3lame-encoder = "0.1.2"
 symphonia = { version = "0.5.2", features = ["mp3", "wav"] }
+thiserror = "1.0.40"
 
 # Debian package metadata
 [package.metadata.deb]

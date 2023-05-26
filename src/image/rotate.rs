@@ -2,6 +2,7 @@ use clap::Args;
 use image::{ImageBuffer, Rgba};
 use imageproc::geometric_transformations;
 use log::info;
+use thiserror::Error;
 
 use crate::image::utils as image_utils;
 use crate::internal::utils;
@@ -25,9 +26,11 @@ pub struct RotateCommand {
     output: String,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum RotateError {
+    #[error("Image crate error")]
     ImageCrateError(image::ImageError),
+    #[error("Parse error")]
     ParseError,
 }
 

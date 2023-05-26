@@ -1,5 +1,6 @@
 use clap::Args;
 use log::info;
+use thiserror::Error;
 
 use crate::internal::utils;
 
@@ -15,8 +16,9 @@ pub struct BlurCommand {
     output: String,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum BlurError {
+    #[error("Image crate error")]
     ImageCrateError(image::ImageError),
 }
 

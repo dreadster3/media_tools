@@ -20,7 +20,8 @@ fn main() {
     match options.execute() {
         Ok(_) => {}
         Err(e) => {
-            info!("Error: {:?}", e);
+            debug!("Error: {:?}", e);
+            info!("Error: {}", e);
         }
     }
 }

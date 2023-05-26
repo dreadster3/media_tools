@@ -1,6 +1,7 @@
 use clap::Args;
 use image;
 use log::info;
+use thiserror::Error;
 
 use crate::internal::utils;
 
@@ -31,8 +32,9 @@ pub struct ResizeCommand {
     output: String,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum ResizeError {
+    #[error("Image crate error")]
     ImageCrateError(image::ImageError),
 }
 

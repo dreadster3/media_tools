@@ -2,6 +2,7 @@ use std::io::Write;
 use std::{fs, path};
 
 use mp3lame_encoder;
+use thiserror::Error;
 
 use super::core::Encode;
 use super::errors;
@@ -11,10 +12,13 @@ pub struct Mp3Encoder {
     writer: mp3lame_encoder::Encoder,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum Mp3EncodeError {
+    #[error("{0}")]
     Mp3EncoderBuilderError(mp3lame_encoder::BuildError),
+    #[error("{0}")]
     Mp3EncodeError(mp3lame_encoder::EncodeError),
+    #[error("{0}")]
     IoError(std::io::Error),
 }
 

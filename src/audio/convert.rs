@@ -4,6 +4,7 @@ use clap::Args;
 use log::{info, warn};
 use symphonia::core::{audio, codecs, errors, formats, io as symphonia_io, probe};
 use symphonia::default;
+use thiserror::Error;
 
 use crate::audio::encoders;
 use crate::internal::utils;
@@ -14,11 +15,15 @@ pub struct AudioConvertCommand {
     output: String,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum AudioConvertError {
+    #[error("{0}")]
     IoError(std::io::Error),
+    #[error("{0}")]
     SymphoniaError(errors::Error),
+    #[error("{0}")]
     DecodeError(errors::Error),
+    #[error("{0}")]
     EncodeError(encoders::errors::Error),
 }
 
