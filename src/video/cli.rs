@@ -6,9 +6,11 @@ use super::watermark::{VideoWatermarkCommand, VideoWatermarkError};
 
 #[derive(Subcommand)]
 pub enum VideoCommand {
+    /// Convert a video to another format
     #[clap(name = "convert")]
     Convert(VideoConvertCommand),
 
+    /// Add a watermark to a video
     #[clap(name = "watermark")]
     Watermark(VideoWatermarkCommand),
 }
