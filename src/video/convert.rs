@@ -1,9 +1,10 @@
-use std::process::Command;
+
 
 use clap::Args;
-use log::{debug, info};
+use log::{info};
 use thiserror::Error;
 
+use super::ffmpeg::ffmpeg;
 use crate::internal::utils;
 
 #[derive(Args)]
@@ -20,15 +21,9 @@ pub enum VideoConvertError {
     #[error("{0}")]
     IOError(std::io::Error),
     #[error("{0}")]
-    FFmpegError(FFmpegError),
+    FFmpegError(ffmpeg::FfmpegError),
     #[error("Unsupported format")]
     UnsupportedFormat,
-}
-
-#[derive(Debug, Error)]
-pub enum FFmpegError {
-    #[error("Executable not found")]
-    ExecutableNotFound,
 }
 
 impl VideoConvertCommand {
@@ -36,33 +31,16 @@ impl VideoConvertCommand {
         let input_path = utils::to_absolute_path(input);
         let output_path = utils::to_absolute_path(&self.output);
 
-        let normalized_command = utils::normalize_command("ffmpeg");
-
-        debug!("Normalizing command: {}", normalized_command);
-
-        let mut command = Command::new(&normalized_command);
-
-        // Argument handling
-        command.arg("-y").arg("-i").arg(&input_path);
+        let mut stream = ffmpeg::Ffmpeg::input(0, &input_path);
+        stream.output(&output_path);
 
         if self.skip_encoding {
-            command.arg("-c").arg("copy");
+            stream.skip_encoding();
         }
 
-        command.arg(&output_path);
-
-        if let Err(e) = command.output() {
-            match e.kind() {
-                std::io::ErrorKind::NotFound => {
-                    return Err(VideoConvertError::FFmpegError(
-                        FFmpegError::ExecutableNotFound,
-                    ));
-                }
-                _ => {
-                    return Err(VideoConvertError::IOError(e));
-                }
-            }
-        }
+        stream
+            .execute()
+            .map_err(|e| VideoConvertError::FFmpegError(e))?;
 
         info!("Video saved to {}", output_path.display());
 

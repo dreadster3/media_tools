@@ -5,6 +5,7 @@ use super::convert::{AudioConvertCommand, AudioConvertError};
 
 #[derive(Subcommand)]
 pub enum AudioCommand {
+    /// Convert an audio file to another format
     #[clap(name = "convert")]
     Convert(AudioConvertCommand),
 }
