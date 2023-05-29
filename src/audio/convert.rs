@@ -10,6 +10,7 @@ use crate::internal::utils;
 
 #[derive(Args)]
 pub struct AudioConvertCommand {
+    /// Output file
     #[clap(short, long)]
     output: String,
 }

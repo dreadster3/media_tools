@@ -9,9 +9,12 @@ use crate::internal::utils;
 
 #[derive(Args)]
 pub struct AudioSpeedCommand {
+    /// Speed factor (1.0 = normal) (0.5 = half speed) (2.0 = double speed).
+    /// Note: Values below 0 will be treated as 0.
     #[clap(short, long)]
     factor: f32,
 
+    /// Output file
     #[clap(short, long)]
     output: String,
 }
@@ -58,7 +61,7 @@ impl AudioSpeedCommand {
             .map_err(|e| AudioSpeedError::SymphoniaError(e))?;
 
         let mut sample_buffer: Option<audio::SampleBuffer<f32>> = None;
-        let new_sample_rate = (sample_rate as f32 * self.factor) as u32;
+        let new_sample_rate = (sample_rate as f32 * self.factor.clamp(0, f32::MAX)) as u32;
         let mut writer =
             encoders::core::get_encoder(&output_path, channels as u16, new_sample_rate)
                 .map_err(|e| AudioSpeedError::EncodeError(e))?;

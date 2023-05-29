@@ -1,6 +1,6 @@
 [package]
 name = "media_tools"
-version = "0.1.0-beta9"
+version = "0.1.0-beta10"
 edition = "2021"
 authors = ["Nuno Antunes"]
 description = "A simple tool to manipulate media files"

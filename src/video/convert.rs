@@ -1,7 +1,5 @@
-
-
 use clap::Args;
-use log::{info};
+use log::info;
 use thiserror::Error;
 
 use super::ffmpeg::ffmpeg;
@@ -9,9 +7,11 @@ use crate::internal::utils;
 
 #[derive(Args)]
 pub struct VideoConvertCommand {
+    /// Output file
     #[clap(short, long)]
     output: String,
 
+    /// Whether to skip encoding
     #[clap(short, long)]
     skip_encoding: bool,
 }
