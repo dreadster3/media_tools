@@ -124,7 +124,9 @@ impl FfmpegInputStream {
             command.arg("-filter_complex");
             command.arg(self.compile_filters());
             command.arg("-map");
-            command.arg(format!("[{}]", self.get_current_result()));
+            command.arg(format!("[{}]:v", self.get_current_result()));
+            command.arg("-map");
+            command.arg(format!("{}:a", self.id.to_string()));
         }
 
         command.arg("-y");
