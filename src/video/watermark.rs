@@ -17,11 +17,12 @@ pub struct VideoWatermarkCommand {
     #[clap(short, long, default_value = "center")]
     position: VideoWatermarkPosition,
 
-    /// Opacity of the overlay
+    /// Opacity of the overlay. Note: value will be clamped between 0.0 and 1.0
     #[clap(short('O'), long, default_value = "1.0")]
     opacity: f32,
 
-    /// The percentage of width the watermark should take up
+    /// The percentage of width the watermark should take up. Note: value will
+    /// be clamped between 0.0 and 1.0
     #[clap(short, long)]
     scale: Option<f32>,
 
@@ -72,7 +73,7 @@ impl VideoWatermarkCommand {
         watermark_stream.opacity(self.opacity.clamp(0f32, 1f32));
 
         if let Some(scale) = self.scale {
-            watermark_width = (video_width as f32 * scale) as u32;
+            watermark_width = (video_width as f32 * scale.clamp(0f32, 1f32)) as u32;
             watermark_height = (watermark_width as f32 / watermark_ratio) as u32;
             watermark_stream.scale(watermark_width, watermark_height);
         }
