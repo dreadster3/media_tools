@@ -10,9 +10,9 @@
 | ------ | ------------------ | ------------------ |
 | Mp3    | :heavy_check_mark: | :heavy_check_mark: |
 | Wav    | :heavy_check_mark: | :heavy_check_mark: |
-| Flac   | :heavy_check_mark: | :x:                |
-| Ogg    | :heavy_check_mark: | :x:                |
-| AAC    | :heavy_check_mark: | :x:                |
+| Flac   | :x:                | :heavy_check_mark: |
+| Ogg    | :x:                | :heavy_check_mark: |
+| AAC    | :x:                | :heavy_check_mark: |
 
 ## Images
 
