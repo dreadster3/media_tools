@@ -21,9 +21,9 @@ pub struct VideoWatermarkCommand {
     #[clap(short('O'), long, default_value = "1.0")]
     opacity: f32,
 
-    /// Area the overlay should cover
+    /// The percentage of width the watermark should take up
     #[clap(short, long)]
-    area: Option<String>,
+    scale: Option<f32>,
 
     /// Path to output file
     #[clap(short, long)]
@@ -45,6 +45,8 @@ pub enum VideoWatermarkError {
     ImageError(image::ImageError),
     #[error("{0}")]
     ProbeError(ffprobe::FfprobeError),
+    #[error("{0}")]
+    FfmpegError(ffmpeg::FfmpegError),
     #[error("Dimension error")]
     DimensionError,
 }
@@ -58,44 +60,57 @@ impl VideoWatermarkCommand {
         let (video_width, video_height) = ffprobe::get_video_dimensions(&input_path)
             .map_err(|e| VideoWatermarkError::ProbeError(e))?;
 
+        let watermark =
+            image::open(&watermark_path).map_err(|e| VideoWatermarkError::ImageError(e))?;
+
+        let mut watermark_width = watermark.width();
+        let mut watermark_height = watermark.height();
+        let watermark_ratio = watermark_width as f32 / watermark_height as f32;
+
         let mut video_stream = ffmpeg::Ffmpeg::input(0, &input_path);
         let mut watermark_stream = ffmpeg::Ffmpeg::input(1, &watermark_path);
-        watermark_stream.scale(50, 50);
+        watermark_stream.opacity(self.opacity.clamp(0f32, 1f32));
+
+        if let Some(scale) = self.scale {
+            watermark_width = (video_width as f32 * scale) as u32;
+            watermark_height = (watermark_width as f32 / watermark_ratio) as u32;
+            watermark_stream.scale(watermark_width, watermark_height);
+        }
+
+        watermark_width = watermark_width.clamp(0, video_width);
+        watermark_height = watermark_height.clamp(0, video_height);
+
+        let mut x = 0;
+        let mut y = 0;
+
+        match self.position {
+            VideoWatermarkPosition::TopLeft => {}
+            VideoWatermarkPosition::TopRight => {
+                x = video_width - watermark_width;
+            }
+            VideoWatermarkPosition::Center => {
+                x = (video_width - watermark_width) / 2;
+                y = (video_height - watermark_height) / 2;
+            }
+            VideoWatermarkPosition::BottomLeft => {
+                y = video_height - watermark_height;
+            }
+            VideoWatermarkPosition::BottomRight => {
+                x = video_width - watermark_width;
+                y = video_height - watermark_height;
+            }
+        }
 
         video_stream
-            .overlay(&watermark_stream, 0, 0)
+            .overlay(&watermark_stream, x, y)
             .output(&output_path);
 
-        // info!("Filters: {}", video_stream.compile_filters());
-
-        video_stream.execute();
-        Ok(())
-
-        // let watermark =
-        //     image::open(&watermark_path).map_err(|e|
-        // VideoWatermarkError::ImageError(e))?; let (watermark_width,
-        // watermark_height) = watermark.dimensions();
-        // let watermark_ratio = watermark_width as f32 / watermark_height as
-        // f32;
-        //
-        // info!(
-        //     "Watermark dimensions: {}x{}",
-        //     watermark_width, watermark_height
-        // );
-        //
-        // let (video_width, video_height) =
-        // ffprobe::get_video_dimensions(&input_path)     .map_err(|e|
-        // VideoWatermarkError::ProbeError(e))?;
-        //
-        // info!("Video dimensions: {}x{}", video_width, video_height);
-        //
-        // let mut ffmpeg_builder = ffmpeg::FfmpegCommandBuilder::new();
-        //
-        // ffmpeg_builder
-        //     .input(&input_path)
-        //     .input(&watermark_path)
-        //     .output(&output_path);
-        //
-        // return Ok(());
+        return match video_stream.execute() {
+            Ok(_) => {
+                info!("Video saved to {}", output_path.display());
+                Ok(())
+            }
+            Err(e) => Err(VideoWatermarkError::FfmpegError(e)),
+        };
     }
 }

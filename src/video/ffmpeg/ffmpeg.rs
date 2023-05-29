@@ -87,6 +87,15 @@ impl FfmpegInputStream {
         return self;
     }
 
+    pub fn opacity(&mut self, opacity: f32) -> &mut Self {
+        let current_result = self.get_current_result();
+        let next_result = self.increment_result();
+
+        self.filters
+            .push(Filter::opacity(current_result, next_result, opacity));
+        return self;
+    }
+
     pub fn scale(&mut self, width: u32, height: u32) -> &mut Self {
         let current_result = self.get_current_result();
         let next_result = self.increment_result();
@@ -172,6 +181,15 @@ impl Filter {
             to,
             name: "overlay".to_string(),
             arguments: vec![x.to_string(), y.to_string()],
+        };
+    }
+
+    pub fn opacity(from: String, to: String, opacity: f32) -> Self {
+        return Self {
+            from: vec![from],
+            to,
+            name: "format".to_string(),
+            arguments: vec![format!("rgba,colorchannelmixer=aa={}", opacity.to_string())],
         };
     }
 

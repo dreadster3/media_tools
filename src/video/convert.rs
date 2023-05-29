@@ -1,7 +1,7 @@
-use std::process::Command;
+
 
 use clap::Args;
-use log::{debug, info};
+use log::{info};
 use thiserror::Error;
 
 use super::ffmpeg::ffmpeg;
@@ -31,14 +31,14 @@ impl VideoConvertCommand {
         let input_path = utils::to_absolute_path(input);
         let output_path = utils::to_absolute_path(&self.output);
 
-        let mut builder = ffmpeg::FfmpegCommandBuilder::new();
-        builder.input(&input_path).output(&output_path);
+        let mut stream = ffmpeg::Ffmpeg::input(0, &input_path);
+        stream.output(&output_path);
 
         if self.skip_encoding {
-            builder.skip_encoding();
+            stream.skip_encoding();
         }
 
-        builder
+        stream
             .execute()
             .map_err(|e| VideoConvertError::FFmpegError(e))?;
 
