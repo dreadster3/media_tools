@@ -4,18 +4,20 @@ use symphonia::core::{audio, codecs, errors};
 use symphonia::default;
 use thiserror::Error;
 
-use super::utils as audio_utils;
-use crate::audio::encoders;
+use super::{encoders, utils as audio_utils};
 use crate::internal::utils;
 
 #[derive(Args)]
-pub struct AudioConvertCommand {
+pub struct AudioSpeedCommand {
+    #[clap(short, long)]
+    factor: f32,
+
     #[clap(short, long)]
     output: String,
 }
 
 #[derive(Debug, Error)]
-pub enum AudioConvertError {
+pub enum AudioSpeedError {
     #[error("{0}")]
     IoError(std::io::Error),
     #[error("{0}")]
@@ -28,13 +30,13 @@ pub enum AudioConvertError {
     EncodeError(encoders::errors::Error),
 }
 
-impl AudioConvertCommand {
-    pub fn execute(&self, input: &str) -> Result<(), AudioConvertError> {
+impl AudioSpeedCommand {
+    pub fn execute(&self, input: &str) -> Result<(), AudioSpeedError> {
         let input_path = utils::to_absolute_path(&input);
         let output_path = utils::to_absolute_path(&self.output);
 
         let mut format = audio_utils::get_audio_format(&input_path)
-            .map_err(|e| AudioConvertError::ProbeError(e))?;
+            .map_err(|e| AudioSpeedError::ProbeError(e))?;
 
         // Default track or find the first non-null track
         let track = format
@@ -53,11 +55,13 @@ impl AudioConvertCommand {
         let sample_rate = track.codec_params.sample_rate.unwrap();
         let mut decoder = default::get_codecs()
             .make(&track.codec_params, &Default::default())
-            .map_err(|e| AudioConvertError::SymphoniaError(e))?;
+            .map_err(|e| AudioSpeedError::SymphoniaError(e))?;
 
         let mut sample_buffer: Option<audio::SampleBuffer<f32>> = None;
-        let mut writer = encoders::core::get_encoder(&output_path, channels as u16, sample_rate)
-            .map_err(|e| AudioConvertError::EncodeError(e))?;
+        let new_sample_rate = (sample_rate as f32 * self.factor) as u32;
+        let mut writer =
+            encoders::core::get_encoder(&output_path, channels as u16, new_sample_rate)
+                .map_err(|e| AudioSpeedError::EncodeError(e))?;
 
         loop {
             let packet = match format.next_packet() {
@@ -66,10 +70,10 @@ impl AudioConvertCommand {
                     if err.kind() == std::io::ErrorKind::UnexpectedEof {
                         break;
                     } else {
-                        return Err(AudioConvertError::IoError(err));
+                        return Err(AudioSpeedError::IoError(err));
                     }
                 }
-                Err(e) => return Err(AudioConvertError::DecodeError(e)),
+                Err(e) => return Err(AudioSpeedError::DecodeError(e)),
             };
 
             if packet.track_id() != track_id {
@@ -82,7 +86,7 @@ impl AudioConvertCommand {
                     warn!("Decode error: {}", err);
                     continue;
                 }
-                Err(e) => return Err(AudioConvertError::SymphoniaError(e)),
+                Err(e) => return Err(AudioSpeedError::SymphoniaError(e)),
             };
 
             sample_buffer = match sample_buffer {
@@ -103,7 +107,7 @@ impl AudioConvertCommand {
 
                 writer
                     .encode(buf.samples())
-                    .map_err(|e| AudioConvertError::EncodeError(e))?;
+                    .map_err(|e| AudioSpeedError::EncodeError(e))?;
             }
         }
 
