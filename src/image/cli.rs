@@ -1,4 +1,5 @@
 use clap::Subcommand;
+use log::info;
 use thiserror::Error;
 
 use super::blur::{BlurCommand, BlurError};
@@ -30,6 +31,18 @@ pub enum ImageCommand {
     Blur(BlurCommand),
 }
 
+impl std::fmt::Display for ImageCommand {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ImageCommand::Resize(_) => write!(f, "resize"),
+            ImageCommand::Convert(_) => write!(f, "convert"),
+            ImageCommand::Rotate(_) => write!(f, "rotate"),
+            ImageCommand::Watermark(_) => write!(f, "watermark"),
+            ImageCommand::Blur(_) => write!(f, "blur"),
+        }
+    }
+}
+
 #[derive(Debug, Error)]
 pub enum ImageError {
     #[error("{0}")]
@@ -50,6 +63,8 @@ pub enum ImageError {
 
 impl ImageCommand {
     pub fn execute(&self, input: Option<&str>) -> Result<(), ImageError> {
+        info!("Detected operation: {}", self);
+
         match input {
             Some(input) => match self {
                 ImageCommand::Resize(resize) => resize

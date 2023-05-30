@@ -1,6 +1,5 @@
 use clap::{Args, ValueEnum};
-use image::GenericImageView;
-use log::{error, info};
+use log::error;
 use thiserror::Error;
 
 use super::ffmpeg::ffprobe;
@@ -108,7 +107,7 @@ impl VideoWatermarkCommand {
 
         return match video_stream.execute() {
             Ok(_) => {
-                info!("Video saved to {}", output_path.display());
+                println!("Video saved to {}", output_path.display());
                 Ok(())
             }
             Err(e) => Err(VideoWatermarkError::FfmpegError(e)),

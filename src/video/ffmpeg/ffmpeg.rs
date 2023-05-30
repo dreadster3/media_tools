@@ -3,6 +3,8 @@ use std::{path, process};
 use log::debug;
 use thiserror::Error;
 
+use crate::internal::utils;
+
 #[derive(Debug, Error)]
 pub enum FfmpegError {
     #[error("Executable not found")]
@@ -115,7 +117,7 @@ impl FfmpegInputStream {
     }
 
     pub fn execute(&mut self) -> Result<(), FfmpegError> {
-        let mut command = process::Command::new("ffmpeg");
+        let mut command = process::Command::new(utils::normalize_command("ffmpeg"));
         command.arg("-i");
         command.arg(&self.path);
         command.args(&self.arguments);

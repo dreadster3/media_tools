@@ -1,4 +1,5 @@
 use clap::Subcommand;
+use log::info;
 use thiserror::Error;
 
 use super::convert::{VideoConvertCommand, VideoConvertError};
@@ -15,6 +16,15 @@ pub enum VideoCommand {
     Watermark(VideoWatermarkCommand),
 }
 
+impl std::fmt::Display for VideoCommand {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            VideoCommand::Convert(_) => write!(f, "convert"),
+            VideoCommand::Watermark(_) => write!(f, "watermark"),
+        }
+    }
+}
+
 #[derive(Debug, Error)]
 pub enum VideoError {
     #[error("{0}")]
@@ -29,6 +39,8 @@ pub enum VideoError {
 
 impl VideoCommand {
     pub fn execute(&self, input: Option<&str>) -> Result<(), VideoError> {
+        info!("Detected operation: {}", self);
+
         match input {
             Some(input) => match self {
                 VideoCommand::Convert(convert) => convert

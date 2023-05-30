@@ -1,14 +1,11 @@
-use std::io::Write;
+
 
 use clap::Parser;
-use log::{debug, info};
+use log::{debug, error};
 use media_tools::cli::cli::Cli;
 
 fn main() {
-    env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info"))
-        .format(|buf, record| writeln!(buf, "{}", record.args()))
-        .filter(Some("symphonia_core"), log::LevelFilter::Off)
-        .init();
+    env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("off")).init();
 
     let options = Cli::parse();
 
@@ -20,8 +17,8 @@ fn main() {
     match options.execute() {
         Ok(_) => {}
         Err(e) => {
-            debug!("Error: {:?}", e);
-            info!("Error: {}", e);
+            error!("Error: {:?}", e);
+            println!("Error: {}", e);
         }
     }
 }

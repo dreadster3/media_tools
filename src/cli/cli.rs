@@ -1,4 +1,7 @@
+use std::fmt;
+
 use clap::{Parser, Subcommand};
+use log::info;
 use thiserror::Error;
 
 use crate::audio::cli::{AudioCommand, AudioError};
@@ -12,7 +15,7 @@ pub struct Cli {
     #[clap(subcommand)]
     mode: EMode,
 
-    #[clap(global = true)]
+    #[arg(global = true)]
     input: Option<String>,
 }
 
@@ -31,6 +34,16 @@ pub enum EMode {
     Audio(AudioCommand),
 }
 
+impl fmt::Display for EMode {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            EMode::Image(_) => write!(f, "image"),
+            EMode::Video(_) => write!(f, "video"),
+            EMode::Audio(_) => write!(f, "audio"),
+        }
+    }
+}
+
 #[derive(Debug, Error)]
 pub enum CliError {
     #[error("{0}")]
@@ -43,6 +56,8 @@ pub enum CliError {
 
 impl Cli {
     pub fn execute(&self) -> Result<(), CliError> {
+        info!("Detected mode: {}", self.mode);
+
         match &self.mode {
             EMode::Image(image) => image
                 .execute(self.input.as_deref())
