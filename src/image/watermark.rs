@@ -1,6 +1,6 @@
 use clap::{Args, ValueEnum};
 use image::GenericImageView;
-use log::{error, info};
+use log::{debug, error, info};
 use thiserror::Error;
 
 use super::utils as image_utils;
@@ -19,6 +19,11 @@ pub struct WatermarkCommand {
     /// Opacity of the overlay
     #[clap(short('O'), long, default_value = "1.0")]
     opacity: f32,
+
+    /// The percentage of width the watermark should take up. Note: value will
+    /// be clamped between 0.0 and 1.0
+    #[clap(short, long)]
+    scale: Option<f32>,
 
     /// Path to output file
     #[clap(short, long)]
@@ -48,26 +53,40 @@ impl WatermarkCommand {
         let watermark_path = utils::to_absolute_path(&self.watermark);
         let output_path = utils::to_absolute_path(&self.output);
 
-        let watermark =
+        let mut img = image::open(&input_path).map_err(|e| WatermarkError::CrateImageError(e))?;
+        let (image_width, image_height) = img.dimensions();
+
+        let mut watermark =
             image::open(&watermark_path).map_err(|e| WatermarkError::CrateImageError(e))?;
+
+        if let Some(scale) = self.scale {
+            let (width, height) = watermark.dimensions();
+            let watermark_ratio = width as f32 / height as f32;
+            let new_width = (image_width as f32 * scale).round() as u32;
+            let new_height = (new_width as f32 / watermark_ratio).round() as u32;
+
+            watermark =
+                watermark.resize(new_width, new_height, image::imageops::FilterType::Nearest);
+        }
+
         let (watermark_width, watermark_height) = watermark.dimensions();
 
-        let mut img = image::open(&input_path).map_err(|e| WatermarkError::CrateImageError(e))?;
-        let (width, height) = img.dimensions();
-
-        if watermark_width > width || watermark_height > height {
+        if watermark_width > image_width || watermark_height > image_height {
             error!("Watermark is bigger than the image");
             return Err(WatermarkError::DimensionError);
         }
 
         let (x, y) = match self.position {
             WatermarkPosition::TopLeft => (0, 0),
-            WatermarkPosition::TopRight => (width - watermark_width, 0),
-            WatermarkPosition::BottomLeft => (0, height - watermark_height),
-            WatermarkPosition::BottomRight => (width - watermark_width, height - watermark_height),
+            WatermarkPosition::TopRight => (image_width - watermark_width, 0),
+            WatermarkPosition::BottomLeft => (0, image_height - watermark_height),
+            WatermarkPosition::BottomRight => (
+                image_width - watermark_width,
+                image_height - watermark_height,
+            ),
             WatermarkPosition::Center => (
-                width / 2 - (watermark_width / 2),
-                height / 2 - (watermark_height / 2),
+                image_width / 2 - (watermark_width / 2),
+                image_height / 2 - (watermark_height / 2),
             ),
         };
 
