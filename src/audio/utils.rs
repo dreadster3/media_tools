@@ -37,3 +37,13 @@ pub fn get_audio_format(
     let probe = probe_audio(audio_file)?;
     return Ok(probe.format);
 }
+
+pub fn interleaved_to_planar(interleaved: &[f32], channels: usize) -> Vec<Vec<f32>> {
+    let mut planar = vec![Vec::with_capacity(interleaved.len() / channels); channels];
+
+    for (i, sample) in interleaved.iter().enumerate() {
+        planar[i % channels].push(*sample);
+    }
+
+    return planar;
+}

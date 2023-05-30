@@ -1,6 +1,6 @@
 use thiserror::Error;
 
-use super::{mp3, wav};
+use super::{mp3, ogg, wav};
 
 #[derive(Debug, Error)]
 pub enum Error {
@@ -8,6 +8,8 @@ pub enum Error {
     Mp3EncodeError(mp3::Mp3EncodeError),
     #[error("{0}")]
     WavEncodeError(wav::WavEncodeError),
+    #[error("{0}")]
+    OggEncodeError(ogg::OggEncoderError),
     #[error("Function not implemented")]
     NotImplementedError,
 }

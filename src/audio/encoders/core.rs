@@ -1,6 +1,6 @@
 use std::path;
 
-use super::{errors, mp3, wav};
+use super::{errors, mp3, ogg, wav};
 
 pub trait Encode {
     fn encode(&mut self, data: &[f32]) -> Result<(), errors::Error>;
@@ -21,6 +21,10 @@ pub fn get_encoder(
                 "mp3" => Ok(Box::new(
                     mp3::Mp3Encoder::new(file_path, channels, sample_rate)
                         .map_err(|e| errors::Error::Mp3EncodeError(e))?,
+                )),
+                "ogg" => Ok(Box::new(
+                    ogg::OggEncoder::new(file_path, channels, sample_rate)
+                        .map_err(|e| errors::Error::OggEncodeError(e))?,
                 )),
                 _ => Err(errors::Error::NotImplementedError),
             };
