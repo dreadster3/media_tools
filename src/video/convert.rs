@@ -1,5 +1,5 @@
 use clap::Args;
-use log::info;
+
 use thiserror::Error;
 
 use super::ffmpeg::ffmpeg;
@@ -42,7 +42,7 @@ impl VideoConvertCommand {
             .execute()
             .map_err(|e| VideoConvertError::FFmpegError(e))?;
 
-        info!("Video saved to {}", output_path.display());
+        println!("Video saved to {}", output_path.display());
 
         return Ok(());
     }

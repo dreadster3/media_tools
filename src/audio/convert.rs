@@ -1,5 +1,5 @@
 use clap::Args;
-use log::{info, warn};
+use log::{warn};
 use symphonia::core::{audio, codecs, errors};
 use symphonia::default;
 use thiserror::Error;
@@ -108,7 +108,7 @@ impl AudioConvertCommand {
             }
         }
 
-        info!("Audio saved to {}", output_path.display());
+        println!("Audio saved to {}", output_path.display());
 
         Ok(())
     }

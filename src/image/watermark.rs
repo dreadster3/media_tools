@@ -1,6 +1,6 @@
 use clap::{Args, ValueEnum};
 use image::GenericImageView;
-use log::{debug, error, info};
+use log::error;
 use thiserror::Error;
 
 use super::utils as image_utils;
@@ -110,7 +110,7 @@ impl WatermarkCommand {
         img.save(&output_path)
             .map_err(|e| WatermarkError::CrateImageError(e))?;
 
-        info!("Image saved to {}", output_path.display());
+        println!("Image saved to {}", output_path.display());
 
         return Ok(());
     }

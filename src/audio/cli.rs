@@ -1,4 +1,7 @@
+use std::fmt;
+
 use clap::Subcommand;
+use log::info;
 use thiserror::Error;
 
 use super::convert::{AudioConvertCommand, AudioConvertError};
@@ -15,6 +18,15 @@ pub enum AudioCommand {
     Speed(AudioSpeedCommand),
 }
 
+impl fmt::Display for AudioCommand {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            AudioCommand::Convert(_) => write!(f, "convert"),
+            AudioCommand::Speed(_) => write!(f, "speed"),
+        }
+    }
+}
+
 #[derive(Debug, Error)]
 pub enum AudioError {
     #[error("{0}")]
@@ -27,6 +39,8 @@ pub enum AudioError {
 
 impl AudioCommand {
     pub fn execute(&self, input: Option<&str>) -> Result<(), AudioError> {
+        info!("Detected operation: {}", self);
+
         match input {
             Some(input) => match self {
                 AudioCommand::Convert(command) => command

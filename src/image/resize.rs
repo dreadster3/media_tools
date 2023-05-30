@@ -1,6 +1,6 @@
 use clap::Args;
 use image;
-use log::info;
+
 use thiserror::Error;
 
 use crate::internal::utils;
@@ -58,7 +58,7 @@ impl ResizeCommand {
             .save(&output_path)
             .map_err(|e| ResizeError::ImageCrateError(e))?;
 
-        info!("Image saved to {}", output_path.display());
+        println!("Image saved to {}", output_path.display());
 
         return Ok(());
     }
