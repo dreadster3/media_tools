@@ -6,6 +6,7 @@ use crate::internal::utils;
 
 #[derive(Args)]
 pub struct ConvertCommand {
+    /// Output file
     #[clap(short, long)]
     output: String,
 }
