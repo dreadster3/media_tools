@@ -11,7 +11,7 @@
 | Mp3    | :heavy_check_mark: | :heavy_check_mark: |
 | Wav    | :heavy_check_mark: | :heavy_check_mark: |
 | Flac   | :x:                | :heavy_check_mark: |
-| Ogg    | :x:                | :heavy_check_mark: |
+| Ogg    | :heavy_check_mark: | :heavy_check_mark: |
 | AAC    | :x:                | :heavy_check_mark: |
 
 ## Images
