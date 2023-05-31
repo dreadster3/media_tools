@@ -3,6 +3,7 @@ use log::info;
 use thiserror::Error;
 
 use super::convert::{VideoConvertCommand, VideoConvertError};
+use super::mute::{MuteCommand, MuteError};
 use super::watermark::{VideoWatermarkCommand, VideoWatermarkError};
 
 #[derive(Subcommand)]
@@ -14,6 +15,10 @@ pub enum VideoCommand {
     /// Add a watermark to a video
     #[clap(name = "watermark")]
     Watermark(VideoWatermarkCommand),
+
+    /// Remove the audio from a video
+    #[clap(name = "mute")]
+    Mute(MuteCommand),
 }
 
 impl std::fmt::Display for VideoCommand {
@@ -21,6 +26,7 @@ impl std::fmt::Display for VideoCommand {
         match self {
             VideoCommand::Convert(_) => write!(f, "convert"),
             VideoCommand::Watermark(_) => write!(f, "watermark"),
+            VideoCommand::Mute(_) => write!(f, "mute"),
         }
     }
 }
@@ -31,6 +37,8 @@ pub enum VideoError {
     ConvertError(VideoConvertError),
     #[error("{0}")]
     WatermarkError(VideoWatermarkError),
+    #[error("{0}")]
+    MuteError(MuteError),
     #[error("No input file provided")]
     NoInputError,
     #[error("Function not implemented")]
@@ -49,6 +57,9 @@ impl VideoCommand {
                 VideoCommand::Watermark(watermark) => watermark
                     .execute(&input)
                     .map_err(|e| VideoError::WatermarkError(e)),
+                VideoCommand::Mute(mute) => {
+                    mute.execute(&input).map_err(|e| VideoError::MuteError(e))
+                }
             },
             None => Err(VideoError::NoInputError),
         }

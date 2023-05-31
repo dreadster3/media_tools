@@ -57,6 +57,11 @@ impl FfmpegInputStream {
         return self.get_current_result();
     }
 
+    pub fn remove_audio(&mut self) -> &mut Self {
+        self.arguments.push("-an".to_string());
+        return self;
+    }
+
     pub fn output(&mut self, output: &path::Path) -> &mut Self {
         self.output_path = Some(output.to_path_buf());
         return self;
