@@ -1,7 +1,7 @@
 use clap::Args;
-use log::warn;
-use symphonia::core::{audio, codecs, errors};
-use symphonia::default;
+
+use symphonia::core::{errors};
+
 use thiserror::Error;
 
 use super::{encoders, utils as audio_utils};
