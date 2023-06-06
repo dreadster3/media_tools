@@ -1,5 +1,3 @@
-
-
 use clap::Parser;
 use log::{debug, error};
 use media_tools::cli::cli::Cli;
