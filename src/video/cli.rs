@@ -4,6 +4,7 @@ use thiserror::Error;
 
 use super::convert::{VideoConvertCommand, VideoConvertError};
 use super::mute::{MuteCommand, MuteError};
+use super::rotate::{RotateCommand, RotateError};
 use super::watermark::{VideoWatermarkCommand, VideoWatermarkError};
 
 #[derive(Subcommand)]
@@ -19,6 +20,10 @@ pub enum VideoCommand {
     /// Remove the audio from a video
     #[clap(name = "mute")]
     Mute(MuteCommand),
+
+    /// Rotate a video
+    #[clap(name = "rotate")]
+    Rotate(RotateCommand),
 }
 
 impl std::fmt::Display for VideoCommand {
@@ -27,6 +32,7 @@ impl std::fmt::Display for VideoCommand {
             VideoCommand::Convert(_) => write!(f, "convert"),
             VideoCommand::Watermark(_) => write!(f, "watermark"),
             VideoCommand::Mute(_) => write!(f, "mute"),
+            VideoCommand::Rotate(_) => write!(f, "rotate"),
         }
     }
 }
@@ -39,6 +45,8 @@ pub enum VideoError {
     WatermarkError(VideoWatermarkError),
     #[error("{0}")]
     MuteError(MuteError),
+    #[error("{0}")]
+    RotateError(RotateError),
     #[error("No input file provided")]
     NoInputError,
     #[error("Function not implemented")]
@@ -60,6 +68,9 @@ impl VideoCommand {
                 VideoCommand::Mute(mute) => {
                     mute.execute(&input).map_err(|e| VideoError::MuteError(e))
                 }
+                VideoCommand::Rotate(rotate) => rotate
+                    .execute(&input)
+                    .map_err(|e| VideoError::RotateError(e)),
             },
             None => Err(VideoError::NoInputError),
         }
