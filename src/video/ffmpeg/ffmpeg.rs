@@ -112,6 +112,38 @@ impl FfmpegInputStream {
         return self;
     }
 
+    pub fn pad(&mut self, width: u32, height: u32, color: &str) -> &mut Self {
+        let current_result = self.get_current_result();
+        let next_result = self.increment_result();
+
+        self.filters.push(Filter::pad(
+            current_result,
+            next_result,
+            width,
+            height,
+            color,
+        ));
+        return self;
+    }
+
+    pub fn rotate(&mut self, angle: f32) -> &mut Self {
+        let current_result = self.get_current_result();
+        let next_result = self.increment_result();
+
+        self.filters
+            .push(Filter::rotate(current_result, next_result, angle));
+        return self;
+    }
+
+    pub fn crop(&mut self, width: u32, height: u32) -> &mut Self {
+        let current_result = self.get_current_result();
+        let next_result = self.increment_result();
+
+        self.filters
+            .push(Filter::crop(current_result, next_result, width, height));
+        return self;
+    }
+
     pub fn compile_filters(&self) -> String {
         return self
             .filters
@@ -199,6 +231,39 @@ impl Filter {
             to,
             name: "format".to_string(),
             arguments: vec![format!("rgba,colorchannelmixer=aa={}", opacity.to_string())],
+        };
+    }
+
+    pub fn pad(from: String, to: String, width: u32, height: u32, color: &str) -> Self {
+        return Self {
+            from: vec![from],
+            to,
+            name: "pad".to_string(),
+            arguments: vec![
+                width.to_string(),
+                height.to_string(),
+                (-1).to_string(),
+                (-1).to_string(),
+                color.to_string(),
+            ],
+        };
+    }
+
+    pub fn crop(from: String, to: String, width: u32, height: u32) -> Self {
+        return Self {
+            from: vec![from],
+            to,
+            name: "crop".to_string(),
+            arguments: vec![width.to_string(), height.to_string()],
+        };
+    }
+
+    pub fn rotate(from: String, to: String, angle: f32) -> Self {
+        return Self {
+            from: vec![from],
+            to,
+            name: "rotate".to_string(),
+            arguments: vec![angle.to_radians().to_string()],
         };
     }
 
