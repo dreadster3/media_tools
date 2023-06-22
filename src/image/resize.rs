@@ -1,6 +1,5 @@
 use clap::Args;
 use image;
-
 use thiserror::Error;
 
 use crate::internal::utils;
@@ -66,7 +65,7 @@ impl ResizeCommand {
     fn get_new_height(&self, img: &image::DynamicImage) -> u32 {
         if self.height_as_percentage {
             let height = img.height();
-            return (height as f32 * self.height as f32 / 100.0) as u32;
+            return (height as f32 * self.height.clamp(0, 100) as f32 / 100.0) as u32;
         }
 
         return self.height;
@@ -75,7 +74,7 @@ impl ResizeCommand {
     fn get_new_width(&self, img: &image::DynamicImage) -> u32 {
         if self.width_as_percentage {
             let width = img.width();
-            return (width as f32 * self.width as f32 / 100.0) as u32;
+            return (width as f32 * self.width.clamp(0, 100) as f32 / 100.0) as u32;
         }
 
         return self.width;
