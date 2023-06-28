@@ -4,6 +4,7 @@ use thiserror::Error;
 
 use super::convert::{VideoConvertCommand, VideoConvertError};
 use super::mute::{MuteCommand, MuteError};
+use super::resize::{ResizeCommand, ResizeError};
 use super::rotate::{RotateCommand, RotateError};
 use super::watermark::{VideoWatermarkCommand, VideoWatermarkError};
 
@@ -21,6 +22,10 @@ pub enum VideoCommand {
     #[clap(name = "mute")]
     Mute(MuteCommand),
 
+    /// Resize a video
+    #[clap(name = "resize")]
+    Resize(ResizeCommand),
+
     /// Rotate a video
     #[clap(name = "rotate")]
     Rotate(RotateCommand),
@@ -33,6 +38,7 @@ impl std::fmt::Display for VideoCommand {
             VideoCommand::Watermark(_) => write!(f, "watermark"),
             VideoCommand::Mute(_) => write!(f, "mute"),
             VideoCommand::Rotate(_) => write!(f, "rotate"),
+            VideoCommand::Resize(_) => write!(f, "resize"),
         }
     }
 }
@@ -47,6 +53,8 @@ pub enum VideoError {
     MuteError(MuteError),
     #[error("{0}")]
     RotateError(RotateError),
+    #[error("{0}")]
+    ResizeError(ResizeError),
     #[error("No input file provided")]
     NoInputError,
     #[error("Function not implemented")]
@@ -71,6 +79,9 @@ impl VideoCommand {
                 VideoCommand::Rotate(rotate) => rotate
                     .execute(&input)
                     .map_err(|e| VideoError::RotateError(e)),
+                VideoCommand::Resize(resize) => resize
+                    .execute(&input)
+                    .map_err(|e| VideoError::ResizeError(e)),
             },
             None => Err(VideoError::NoInputError),
         }
