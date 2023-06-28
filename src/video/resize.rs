@@ -1,4 +1,5 @@
 use clap::Args;
+use log::info;
 use thiserror::Error;
 
 use super::ffmpeg::{ffmpeg, ffprobe};
@@ -47,14 +48,44 @@ impl ResizeCommand {
         let (video_width, video_height) =
             ffprobe::get_video_dimensions(&input_path).map_err(|e| ResizeError::ProbeError(e))?;
 
-        let new_width = self.get_new_width(video_width);
-        let new_height = self.get_new_height(video_height);
+        let ratio = video_width as f32 / video_height as f32;
+        let mut new_width = self.get_new_width(video_width);
+        let mut new_height = self.get_new_height(video_height);
 
         let mut stream = ffmpeg::Ffmpeg::input(0, &input_path);
+
+        if self.keep_ratio {
+            let mut possible_width = (new_height as f32 * ratio).round() as u32;
+            let mut possible_height = (new_width as f32 / ratio).round() as u32;
+
+            let possible_width_difference = (new_width as i32 - possible_width as i32).abs();
+            let possible_height_difference = (new_height as i32 - possible_height as i32).abs();
+
+            if possible_width_difference < possible_height_difference {
+                if possible_width % 2 != 0 {
+                    possible_width += 1;
+                }
+
+                new_width = possible_width;
+            } else {
+                if possible_height % 2 != 0 {
+                    possible_height += 1;
+                }
+
+                new_height = possible_height;
+            }
+        }
+
+        info!(
+            "Resizing video to {}x{} (original: {}x{})",
+            new_width, new_height, video_width, video_height
+        );
 
         stream.scale(new_width, new_height).output(&output_path);
 
         stream.execute().map_err(|e| ResizeError::FfmpegError(e))?;
+
+        println!("Video saved to {}", output_path.display());
 
         return Ok(());
     }
