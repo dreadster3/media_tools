@@ -4,6 +4,7 @@ use thiserror::Error;
 
 use super::blur::{BlurCommand, BlurError};
 use super::convert::{ConvertCommand, ConvertError};
+use super::flip::{FlipCommand, FlipError};
 use super::resize::{ResizeCommand, ResizeError};
 use super::rotate::{RotateCommand, RotateError};
 use super::watermark::{WatermarkCommand, WatermarkError};
@@ -29,6 +30,10 @@ pub enum ImageCommand {
     /// Blur an image
     #[clap(name = "blur")]
     Blur(BlurCommand),
+
+    /// Flip an image
+    #[clap(name = "flip")]
+    Flip(FlipCommand),
 }
 
 impl std::fmt::Display for ImageCommand {
@@ -39,6 +44,7 @@ impl std::fmt::Display for ImageCommand {
             ImageCommand::Rotate(_) => write!(f, "rotate"),
             ImageCommand::Watermark(_) => write!(f, "watermark"),
             ImageCommand::Blur(_) => write!(f, "blur"),
+            ImageCommand::Flip(_) => write!(f, "flip"),
         }
     }
 }
@@ -54,7 +60,9 @@ pub enum ImageError {
     #[error("{0}")]
     WatermarkError(WatermarkError),
     #[error("{0}")]
-    Blur(BlurError),
+    BlurError(BlurError),
+    #[error("{0}")]
+    FlipError(FlipError),
     #[error("No input file provided")]
     NoInputError,
     #[error("Function not implemented")]
@@ -83,7 +91,13 @@ impl ImageCommand {
                     .execute(&input)
                     .map_err(|e| ImageError::WatermarkError(e)),
 
-                ImageCommand::Blur(blur) => blur.execute(&input).map_err(|e| ImageError::Blur(e)),
+                ImageCommand::Blur(blur) => {
+                    blur.execute(&input).map_err(|e| ImageError::BlurError(e))
+                }
+
+                ImageCommand::Flip(flip) => {
+                    flip.execute(&input).map_err(|e| ImageError::FlipError(e))
+                }
             },
             None => Err(ImageError::NoInputError),
         }
