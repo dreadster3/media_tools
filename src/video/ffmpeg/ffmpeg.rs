@@ -94,6 +94,24 @@ impl FfmpegInputStream {
         return self;
     }
 
+    pub fn hflip(&mut self) -> &mut Self {
+        let current_result = self.get_current_result();
+        let next_result = self.increment_result();
+
+        self.filters
+            .push(Filter::hflip(current_result, next_result));
+        return self;
+    }
+
+    pub fn vflip(&mut self) -> &mut Self {
+        let current_result = self.get_current_result();
+        let next_result = self.increment_result();
+
+        self.filters
+            .push(Filter::vflip(current_result, next_result));
+        return self;
+    }
+
     pub fn opacity(&mut self, opacity: f32) -> &mut Self {
         let current_result = self.get_current_result();
         let next_result = self.increment_result();
@@ -264,6 +282,24 @@ impl Filter {
             to,
             name: "rotate".to_string(),
             arguments: vec![angle.to_radians().to_string()],
+        };
+    }
+
+    pub fn hflip(from: String, to: String) -> Self {
+        return Self {
+            from: vec![from],
+            to,
+            name: "hflip".to_string(),
+            arguments: vec![],
+        };
+    }
+
+    pub fn vflip(from: String, to: String) -> Self {
+        return Self {
+            from: vec![from],
+            to,
+            name: "vflip".to_string(),
+            arguments: vec![],
         };
     }
 

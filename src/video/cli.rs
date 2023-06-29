@@ -3,6 +3,7 @@ use log::info;
 use thiserror::Error;
 
 use super::convert::{VideoConvertCommand, VideoConvertError};
+use super::flip::{FlipCommand, FlipError};
 use super::mute::{MuteCommand, MuteError};
 use super::resize::{ResizeCommand, ResizeError};
 use super::rotate::{RotateCommand, RotateError};
@@ -29,6 +30,10 @@ pub enum VideoCommand {
     /// Rotate a video
     #[clap(name = "rotate")]
     Rotate(RotateCommand),
+
+    /// Flip a video
+    #[clap(name = "flip")]
+    Flip(FlipCommand),
 }
 
 impl std::fmt::Display for VideoCommand {
@@ -39,6 +44,7 @@ impl std::fmt::Display for VideoCommand {
             VideoCommand::Mute(_) => write!(f, "mute"),
             VideoCommand::Rotate(_) => write!(f, "rotate"),
             VideoCommand::Resize(_) => write!(f, "resize"),
+            VideoCommand::Flip(_) => write!(f, "flip"),
         }
     }
 }
@@ -55,6 +61,8 @@ pub enum VideoError {
     RotateError(RotateError),
     #[error("{0}")]
     ResizeError(ResizeError),
+    #[error("{0}")]
+    FlipError(FlipError),
     #[error("No input file provided")]
     NoInputError,
     #[error("Function not implemented")]
@@ -82,6 +90,9 @@ impl VideoCommand {
                 VideoCommand::Resize(resize) => resize
                     .execute(&input)
                     .map_err(|e| VideoError::ResizeError(e)),
+                VideoCommand::Flip(flip) => {
+                    flip.execute(&input).map_err(|e| VideoError::FlipError(e))
+                }
             },
             None => Err(VideoError::NoInputError),
         }
