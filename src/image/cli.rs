@@ -3,6 +3,7 @@ use log::info;
 use thiserror::Error;
 
 use super::blur::{BlurCommand, BlurError};
+use super::brightness::{BrightnessCommand, BrightnessError};
 use super::convert::{ConvertCommand, ConvertError};
 use super::flip::{FlipCommand, FlipError};
 use super::resize::{ResizeCommand, ResizeError};
@@ -34,6 +35,10 @@ pub enum ImageCommand {
     /// Flip an image
     #[clap(name = "flip")]
     Flip(FlipCommand),
+
+    /// Brighten an image
+    #[clap(name = "brighten")]
+    Brightness(BrightnessCommand),
 }
 
 impl std::fmt::Display for ImageCommand {
@@ -45,6 +50,7 @@ impl std::fmt::Display for ImageCommand {
             ImageCommand::Watermark(_) => write!(f, "watermark"),
             ImageCommand::Blur(_) => write!(f, "blur"),
             ImageCommand::Flip(_) => write!(f, "flip"),
+            ImageCommand::Brightness(_) => write!(f, "brightness"),
         }
     }
 }
@@ -63,6 +69,8 @@ pub enum ImageError {
     BlurError(BlurError),
     #[error("{0}")]
     FlipError(FlipError),
+    #[error("{0}")]
+    BrightnessError(BrightnessError),
     #[error("No input file provided")]
     NoInputError,
     #[error("Function not implemented")]
@@ -98,6 +106,10 @@ impl ImageCommand {
                 ImageCommand::Flip(flip) => {
                     flip.execute(&input).map_err(|e| ImageError::FlipError(e))
                 }
+
+                ImageCommand::Brightness(brightness) => brightness
+                    .execute(&input)
+                    .map_err(|e| ImageError::BrightnessError(e)),
             },
             None => Err(ImageError::NoInputError),
         }
