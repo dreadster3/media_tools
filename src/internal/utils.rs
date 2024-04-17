@@ -1,3 +1,5 @@
+use std::fs;
+
 use log::debug;
 
 pub fn to_absolute_path(path: &str) -> std::path::PathBuf {
@@ -11,7 +13,14 @@ pub fn to_absolute_path(path: &str) -> std::path::PathBuf {
         Err(_) => std::env::current_dir().expect("Could not get current directory"),
     };
 
-    return current_dir.join(path);
+    let full_path = current_dir.join(path);
+
+    let absolute_path = match fs::canonicalize(&full_path) {
+        Ok(path) => path,
+        Err(_) => full_path,
+    };
+
+    return absolute_path;
 }
 
 pub fn normalize_command(command: &str) -> String {
