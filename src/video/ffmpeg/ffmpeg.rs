@@ -183,7 +183,7 @@ impl FfmpegInputStream {
             command.arg("-map");
             command.arg(format!("[{}]:v", self.get_current_result()));
             command.arg("-map");
-            command.arg(format!("{}:a", self.id.to_string()));
+            command.arg(format!("{}:a?", self.id.to_string()));
         }
 
         command.arg("-y");
